@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export type CraftSlug = 'haymilk' | 'pasteurization' | 'taste' | 'howto'
+export type CraftSlug = 'haymilk' | 'pasteurization' | 'taste'
 
 interface Props {
   slug: CraftSlug | null
@@ -59,8 +59,15 @@ export function CraftDetailModal({ slug, onClose }: Props) {
           <div className="px-6 pb-7 pt-9">
             {slug === 'haymilk' && <HayMilkContent />}
             {slug === 'pasteurization' && <PasteurizationContent />}
-            {slug === 'taste' && <TasteContent />}
-            {slug === 'howto' && <HowToTasteContent />}
+            {slug === 'taste' && (
+              <>
+                <TasteContent />
+                <hr className="mt-8 border-line" />
+                <div className="mt-7">
+                  <HowToTasteContent />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -217,9 +224,9 @@ function HowToTasteContent() {
       <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-soil">
         — How to Taste · 음용 가이드
       </p>
-      <h2 id="craft-modal-title" className="mt-2 text-2xl font-semibold tracking-tight-kr text-ink">
+      <h3 className="mt-2 text-2xl font-semibold tracking-tight-kr text-ink">
         한 잔을, <span className="text-gold italic">천천히</span> 맞이하는 법.
-      </h2>
+      </h3>
 
       <ol className="mt-6 space-y-6">
         {TIPS.map((tip, idx) => (
@@ -227,7 +234,7 @@ function HowToTasteContent() {
             <div className="flex items-baseline gap-3">
               <span className="text-xs font-medium text-soil italic">{tip.num}</span>
               <span className="text-lg font-semibold text-gold leading-none">{tip.kanji}</span>
-              <h3 className="text-base font-semibold text-ink">{tip.title}</h3>
+              <h4 className="text-base font-semibold text-ink">{tip.title}</h4>
             </div>
             <p className="mt-2 ml-9 text-sm leading-6 text-mute">{tip.body}</p>
           </li>

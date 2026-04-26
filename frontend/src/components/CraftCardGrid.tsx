@@ -29,14 +29,7 @@ const CARDS: Card[] = [
     no: 'No 08',
     eng: 'The Taste',
     kr: '물보다 가벼운 목넘김',
-    teaser: '가볍지만 깊은, 저지의 여운.',
-  },
-  {
-    slug: 'howto',
-    no: 'No 09',
-    eng: 'How to Taste',
-    kr: '한 잔을 천천히 맞이하는 법',
-    teaser: '冷·器·空·默, 4단계 음용 가이드.',
+    teaser: '가볍지만 깊은 저지의 여운 + 음용 가이드.',
   },
 ]
 
