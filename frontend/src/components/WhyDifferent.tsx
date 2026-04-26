@@ -31,6 +31,11 @@ const CARDS: Card[] = [
     kr: '풍미의 깊이',
     teaser: '유지방 25%, 단백질 18%, 칼슘 20% 더 풍부.',
     image: '/jersey-richness.jpg',
+    backdrop: '/jersey-bottle-real.jpg',
+    photo: {
+      src: '/jersey-bottle-real.jpg',
+      caption: '180ml A2 저지 헤이밀크 · 한 모금에 담긴 두 배의 풍미',
+    },
     tags: ['Rich', 'Creamy', 'Nutrient-Dense'],
     body: [
       '저지 우유는 일반 홀스타인 대비 유지방 25%, 단백질 18%, 칼슘 20% 더 풍부합니다.',

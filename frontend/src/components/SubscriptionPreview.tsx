@@ -72,7 +72,23 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
           {' '}{formatDate(launchDate)}부터 정기구독 서비스를 준비하고 있습니다.
         </p>
 
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+        <figure className="relative mt-8 flex justify-center">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-48 w-48 sm:h-56 sm:w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-gold/20 via-gold/10 to-transparent blur-2xl"
+          />
+          <img
+            src="/jersey-bottle-iso.webp"
+            alt="180ml A2 저지 헤이밀크 우유병"
+            width="320"
+            height="756"
+            className="block h-auto w-[44%] max-w-[180px] sm:max-w-[220px] drop-shadow-xl"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+
+        <ul className="mt-10 grid gap-3 sm:grid-cols-2">
           {ITEMS.map((it) => (
             <li key={it.name}>
               <div className="card flex items-center justify-between gap-3">
