@@ -1,10 +1,7 @@
 import { Hero } from './components/Hero'
 import { BrandFilm } from './components/BrandFilm'
 import { WhyDifferent } from './components/WhyDifferent'
-import { HayMilk } from './components/HayMilk'
-import { Pasteurization } from './components/Pasteurization'
-import { TasteMessage } from './components/TasteMessage'
-import { HowToTaste } from './components/HowToTaste'
+import { CraftCardGrid } from './components/CraftCardGrid'
 import { SubscriptionPreview } from './components/SubscriptionPreview'
 import { SignupForm } from './components/SignupForm'
 import { ShareSection } from './components/ShareSection'
@@ -22,10 +19,7 @@ function App() {
       <Hero onCtaClick={scrollToSignup} launchDate={env.launchDate} />
       <BrandFilm videoId={env.brandFilmId} homepageUrl={env.brandHomepage} />
       <WhyDifferent />
-      <HayMilk />
-      <Pasteurization />
-      <TasteMessage />
-      <HowToTaste />
+      <CraftCardGrid />
       <SubscriptionPreview launchDate={env.launchDate} />
       <SignupForm />
       <ShareSection />
