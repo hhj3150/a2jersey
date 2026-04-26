@@ -1,0 +1,14 @@
+# Railway / Nixpacks 빌더 설정
+# better-sqlite3 네이티브 빌드를 위해 python3, make, gcc 필요
+
+[phases.setup]
+nixPkgs = ["nodejs_20", "python3", "gcc", "gnumake"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm start"

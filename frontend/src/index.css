@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    font-feature-settings: 'ss06', 'tnum';
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-soil ring-offset-2 ring-offset-cream;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-[40rem] px-5 sm:px-6;
+  }
+
+  .section {
+    @apply py-14 sm:py-20;
+  }
+
+  .section-title {
+    @apply text-2xl sm:text-3xl font-semibold tracking-tight-kr text-ink;
+  }
+
+  .section-eyebrow {
+    @apply text-xs uppercase tracking-[0.18em] text-soil font-medium mb-3;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full
+           bg-ink text-white font-semibold
+           h-14 px-7 text-base
+           transition-colors hover:bg-soil-dark active:scale-[0.98]
+           disabled:bg-mute disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full
+           border border-line bg-surface text-ink font-medium
+           h-12 px-6 text-sm
+           transition-colors hover:border-soil hover:text-soil-dark;
+  }
+
+  .field-label {
+    @apply block text-sm font-medium text-ink mb-2;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-line bg-surface
+           h-12 px-4 text-base text-ink placeholder:text-mute
+           transition-colors focus:border-soil focus:ring-0;
+  }
+
+  .field-error {
+    @apply text-xs text-red-600 mt-1.5;
+  }
+
+  .checkbox {
+    @apply h-5 w-5 rounded border-line text-soil
+           focus:ring-soil focus:ring-offset-0;
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-surface p-5;
+  }
+}
+
+/* Smooth scrolling for anchor links */
+html { scroll-behavior: smooth; }
+
+/* Disable iOS tap highlight */
+* { -webkit-tap-highlight-color: transparent; }
