@@ -75,14 +75,14 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
         <figure className="relative mt-8 flex justify-center">
           <span
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-48 w-48 sm:h-56 sm:w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-gold/20 via-gold/10 to-transparent blur-2xl"
+            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-56 w-72 sm:h-64 sm:w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-gold/20 via-gold/10 to-transparent blur-2xl"
           />
           <img
-            src="/jersey-bottle-iso.webp"
-            alt="180ml A2 저지 헤이밀크 우유병"
-            width="320"
-            height="756"
-            className="block h-auto w-[44%] max-w-[180px] sm:max-w-[220px] drop-shadow-xl"
+            src="/jersey-lineup-iso.webp"
+            alt="A2 저지 헤이밀크 라인업 — 180ml · 500ml 플레인 요거트 · 750ml"
+            width="1192"
+            height="1182"
+            className="block h-auto w-full max-w-[320px] sm:max-w-[420px] drop-shadow-xl"
             loading="lazy"
             decoding="async"
           />
