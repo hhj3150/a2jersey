@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { SoftServeModal } from './SoftServeModal'
 import { ComingSoonNotice } from './ComingSoonNotice'
 import { computeDDay } from '../lib/dday'
 import { env } from '../env'
@@ -28,7 +27,6 @@ interface SubscriptionPreviewProps {
 }
 
 export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
-  const [softOpen, setSoftOpen] = useState(false)
   const [noticeOpen, setNoticeOpen] = useState(false)
   const dday = computeDDay(launchDate)
   const isLive = dday.phase === 'live'
@@ -98,38 +96,17 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
           ))}
         </ul>
 
-        <button
-          type="button"
-          onClick={() => setSoftOpen(true)}
-          aria-haspopup="dialog"
-          className="group mt-4 flex w-full items-center justify-between gap-3 rounded-2xl bg-forest p-5 text-left text-white shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gold/60"
-        >
-          <div className="flex items-center gap-3">
-            <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/20 text-xl"
-              aria-hidden
-            >
-              🍦
-            </span>
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-gold">
-                Signature
-              </p>
-              <p className="mt-0.5 text-base font-semibold">
-                A2 저지 헤이밀크 소프트아이스크림
-              </p>
-              <p className="text-xs text-white/70 mt-0.5">
-                안성팜랜드 內 송영신목장 부스 · 탭하여 자세히 보기
-              </p>
-            </div>
-          </div>
-          <span
-            className="ml-1 text-2xl text-gold transition group-hover:translate-x-0.5"
-            aria-hidden
-          >
-            ›
-          </span>
-        </button>
+        <figure className="mt-8">
+          <img
+            src="/jersey-softserve.jpg"
+            alt="A2 Jersey Hay Milk Ice Cream — 이제 홋카이도까지 갈 필요없습니다. 안성팜랜드에서 만나보세요."
+            width="1182"
+            height="1388"
+            className="block h-auto w-full rounded-2xl shadow-sm"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
 
         <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-mute">
           {POLICY_NOTES.map((n) => (
@@ -158,7 +135,6 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
         </div>
       </div>
 
-      <SoftServeModal open={softOpen} onClose={() => setSoftOpen(false)} />
       <ComingSoonNotice
         open={noticeOpen}
         onClose={() => setNoticeOpen(false)}
