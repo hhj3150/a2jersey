@@ -11,6 +11,8 @@ export default {
         soil:     '#8B6F47',
         'soil-dark': '#6B5436',
         line:     '#E8E2D8',
+        forest:   '#1F2E25',
+        gold:     '#C8A867',
       },
       fontFamily: {
         sans: [

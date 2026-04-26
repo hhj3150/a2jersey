@@ -5,7 +5,6 @@ interface PreviewItem {
   name: string
   price?: string
   status: string
-  action?: 'softserve'
 }
 
 const ITEMS: PreviewItem[] = [
@@ -13,8 +12,6 @@ const ITEMS: PreviewItem[] = [
   { name: '180ml A2 저지 헤이밀크',     price: '3,200원',  status: '6월 1일 오픈' },
   { name: '500ml A2 저지 플래인 요거트', price: '10,000원', status: '6월 1일 오픈' },
   { name: '500ml A2 저지 프로틴 요거트', price: '10,000원', status: '6월 1일 오픈' },
-  { name: '소프트아이스크림 · 카페 방문',                  status: '안성팜랜드 內',
-    action: 'softserve' },
 ]
 
 const POLICY_NOTES: string[] = [
@@ -59,24 +56,45 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
         <ul className="mt-8 grid gap-3 sm:grid-cols-2">
           {ITEMS.map((it) => (
             <li key={it.name}>
-              {it.action === 'softserve' ? (
-                <button
-                  type="button"
-                  onClick={() => setSoftOpen(true)}
-                  className="card flex w-full items-center justify-between gap-3 text-left transition hover:bg-cream-dark focus:outline-none focus:ring-2 focus:ring-soil-dark/40"
-                  aria-haspopup="dialog"
-                >
-                  {renderRow(it)}
-                  <span className="ml-1 text-xs text-mute" aria-hidden>›</span>
-                </button>
-              ) : (
-                <div className="card flex items-center justify-between gap-3">
-                  {renderRow(it)}
-                </div>
-              )}
+              <div className="card flex items-center justify-between gap-3">
+                {renderRow(it)}
+              </div>
             </li>
           ))}
         </ul>
+
+        <button
+          type="button"
+          onClick={() => setSoftOpen(true)}
+          aria-haspopup="dialog"
+          className="group mt-4 flex w-full items-center justify-between gap-3 rounded-2xl bg-forest p-5 text-left text-white shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gold/60"
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/20 text-xl"
+              aria-hidden
+            >
+              🍦
+            </span>
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-gold">
+                Signature
+              </p>
+              <p className="mt-0.5 text-base font-semibold">
+                A2 저지 헤이밀크 소프트아이스크림
+              </p>
+              <p className="text-xs text-white/70 mt-0.5">
+                안성팜랜드 內 송영신목장 부스 · 탭하여 자세히 보기
+              </p>
+            </div>
+          </div>
+          <span
+            className="ml-1 text-2xl text-gold transition group-hover:translate-x-0.5"
+            aria-hidden
+          >
+            ›
+          </span>
+        </button>
 
         <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-mute">
           {POLICY_NOTES.map((n) => (
