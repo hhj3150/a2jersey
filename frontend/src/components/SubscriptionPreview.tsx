@@ -1,3 +1,5 @@
+import { computeDDay } from '../lib/dday'
+
 interface PreviewItem {
   name: string
   caption: string
@@ -13,9 +15,13 @@ const ITEMS: PreviewItem[] = [
 
 interface SubscriptionPreviewProps {
   launchDate: string
+  smartstoreUrl: string
 }
 
-export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
+export function SubscriptionPreview({ launchDate, smartstoreUrl }: SubscriptionPreviewProps) {
+  const dday = computeDDay(launchDate)
+  const isLive = dday.phase === 'live' || dday.phase === 'today'
+
   return (
     <section className="section" aria-labelledby="subscription-preview-title">
       <div className="container-app">
@@ -41,6 +47,23 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
             </li>
           ))}
         </ul>
+
+        <div className="mt-8 rounded-2xl border border-line bg-surface p-5 text-center">
+          <p className="text-xs uppercase tracking-[0.18em] text-soil font-medium">
+            오픈 시 구매처
+          </p>
+          <p className="mt-2 text-sm text-ink leading-relaxed">
+            정기구독은 송영신목장 <span className="font-semibold">공식 스마트스토어</span>에서 진행됩니다.
+          </p>
+          <a
+            href={smartstoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary mt-4"
+          >
+            {isLive ? '스마트스토어에서 신청하기 →' : '스마트스토어 미리보기 →'}
+          </a>
+        </div>
       </div>
     </section>
   )

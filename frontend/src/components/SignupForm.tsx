@@ -7,6 +7,55 @@ import {
   type RegisterFormValues,
 } from '../lib/schemas'
 import { postRegister, getRefFromUrl } from '../lib/api'
+import { env } from '../env'
+
+function SuccessPanel() {
+  return (
+    <section id="signup" className="section bg-cream" aria-live="polite">
+      <div className="container-app">
+        <div className="card text-center py-12">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-soil/10 text-soil-dark text-2xl">
+            ✓
+          </div>
+          <h2 className="text-2xl font-semibold tracking-tight-kr text-ink">
+            사전회원 등록 완료
+          </h2>
+          <p className="mt-4 text-base text-mute leading-relaxed max-w-reading mx-auto">
+            송영신목장 A2 Jersey Hay Milk 사전회원으로 등록되었습니다.
+            <br />
+            6월 1일 정기구독 오픈 시 가장 먼저 안내드리겠습니다.
+          </p>
+
+          <div className="mt-8 rounded-xl bg-cream/60 border border-line p-4 text-left">
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-soil">
+              안내받을 곳
+            </p>
+            <ul className="mt-2 space-y-1.5 text-sm text-ink">
+              <li className="flex items-start gap-2">
+                <span className="text-soil-dark mt-0.5">•</span>
+                <span>등록하신 휴대폰 번호로 문자 발송 (마케팅 동의 시)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-soil-dark mt-0.5">•</span>
+                <span>
+                  공식 스마트스토어에서 정기구독 신청<br />
+                  <a
+                    href={env.smartstoreUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-soil-dark underline underline-offset-2 break-all"
+                  >
+                    {env.smartstoreUrl}
+                  </a>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 type SubmitState =
   | { kind: 'idle' }
@@ -70,23 +119,7 @@ export function SignupForm() {
 
   if (state.kind === 'success') {
     return (
-      <section id="signup" className="section bg-cream" aria-live="polite">
-        <div className="container-app">
-          <div className="card text-center py-12">
-            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-soil/10 text-soil-dark text-2xl">
-              ✓
-            </div>
-            <h2 className="text-2xl font-semibold tracking-tight-kr text-ink">
-              사전회원 등록 완료
-            </h2>
-            <p className="mt-4 text-base text-mute leading-relaxed max-w-reading mx-auto">
-              송영신목장 A2 Jersey Hay Milk 사전회원으로 등록되었습니다.
-              <br />
-              6월 1일 정기구독 오픈 시 가장 먼저 안내드리겠습니다.
-            </p>
-          </div>
-        </div>
-      </section>
+      <SuccessPanel />
     )
   }
 

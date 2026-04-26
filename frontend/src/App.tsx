@@ -15,14 +15,18 @@ function App() {
 
   return (
     <main>
-      <Hero onCtaClick={scrollToSignup} launchDate={env.launchDate} />
+      <Hero
+        onCtaClick={scrollToSignup}
+        launchDate={env.launchDate}
+        smartstoreUrl={env.smartstoreUrl}
+      />
       <BrandFilm videoId={env.brandFilmId} homepageUrl={env.brandHomepage} />
       <WhyDifferent />
       <TasteMessage />
-      <SubscriptionPreview launchDate={env.launchDate} />
+      <SubscriptionPreview launchDate={env.launchDate} smartstoreUrl={env.smartstoreUrl} />
       <SignupForm />
       <FAQ />
-      <Footer homepageUrl={env.brandHomepage} />
+      <Footer homepageUrl={env.brandHomepage} smartstoreUrl={env.smartstoreUrl} />
     </main>
   )
 }

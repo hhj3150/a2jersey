@@ -1,8 +1,9 @@
 interface FooterProps {
   homepageUrl: string
+  smartstoreUrl: string
 }
 
-export function Footer({ homepageUrl }: FooterProps) {
+export function Footer({ homepageUrl, smartstoreUrl }: FooterProps) {
   const year = new Date().getFullYear()
   return (
     <footer className="bg-cream border-t border-line">
@@ -18,6 +19,15 @@ export function Footer({ homepageUrl }: FooterProps) {
             className="text-soil-dark hover:underline"
           >
             공식 홈페이지
+          </a>
+          <span className="text-line">·</span>
+          <a
+            href={smartstoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-soil-dark hover:underline"
+          >
+            공식 스마트스토어
           </a>
           <span className="text-line">·</span>
           <span className="text-mute">경기도 안성시</span>
