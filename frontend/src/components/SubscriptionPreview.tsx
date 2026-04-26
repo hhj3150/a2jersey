@@ -1,14 +1,21 @@
 interface PreviewItem {
   name: string
+  price?: string
   status: string
 }
 
 const ITEMS: PreviewItem[] = [
-  { name: '750ml A2 저지 헤이밀크',     status: '6월 1일 오픈' },
-  { name: '180ml A2 저지 헤이밀크',     status: '6월 1일 오픈' },
-  { name: '500ml A2 저지 플래인 요거트', status: '6월 1일 오픈' },
-  { name: '500ml A2 저지 프로틴 요거트', status: '6월 1일 오픈' },
-  { name: '소프트아이스크림 · 카페 방문', status: '안성팜랜드 內' },
+  { name: '750ml A2 저지 헤이밀크',     price: '12,000원', status: '6월 1일 오픈' },
+  { name: '180ml A2 저지 헤이밀크',     price: '3,200원',  status: '6월 1일 오픈' },
+  { name: '500ml A2 저지 플래인 요거트', price: '10,000원', status: '6월 1일 오픈' },
+  { name: '500ml A2 저지 프로틴 요거트', price: '10,000원', status: '6월 1일 오픈' },
+  { name: '소프트아이스크림 · 카페 방문',                  status: '안성팜랜드 內' },
+]
+
+const POLICY_NOTES: string[] = [
+  '정기구독 10% 할인',
+  '4만 원 이상 구독 시 택배비 무료',
+  '정기배송 매주 화·목요일',
 ]
 
 interface SubscriptionPreviewProps {
@@ -30,11 +37,25 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-2">
           {ITEMS.map((it) => (
-            <li key={it.name} className="card flex items-center justify-between">
+            <li key={it.name} className="card flex items-center justify-between gap-3">
               <p className="text-base font-semibold text-ink">{it.name}</p>
-              <span className="text-xs font-medium text-soil-dark whitespace-nowrap ml-3">
-                {it.status}
-              </span>
+              <div className="flex flex-col items-end whitespace-nowrap">
+                {it.price && (
+                  <span className="text-sm font-semibold text-ink">{it.price}</span>
+                )}
+                <span className="text-xs font-medium text-soil-dark mt-0.5">
+                  {it.status}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-mute">
+          {POLICY_NOTES.map((n) => (
+            <li key={n} className="flex items-center">
+              <span className="mr-1.5 inline-block h-1 w-1 rounded-full bg-soil-dark" aria-hidden />
+              {n}
             </li>
           ))}
         </ul>
