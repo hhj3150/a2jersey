@@ -11,17 +11,18 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
   const launchLabel = formatLaunchLabel(launchDate)
 
   return (
-    <section className="section pt-20 sm:pt-28">
+    <section className="section pt-16 sm:pt-24">
       <div className="container-app text-center">
-        <p className="section-eyebrow">Made by Soil</p>
-
-        <h1 className="text-[2rem] sm:text-5xl font-bold tracking-tight-kr leading-[1.15] text-ink">
-          국내산 A2 저지 우유,
-          <br />
-          <span className="text-soil-dark">송영신목장</span>
-          <br />
-          A2 Jersey Hay Milk
+        <h1 className="sr-only">
+          국내산 A2 저지 우유, 송영신목장 A2 Jersey Hay Milk
         </h1>
+        <img
+          src="/logo.svg"
+          alt="송영신목장 A2 저지 헤이밀크 — A2 Jersey Hay Milk"
+          className="mx-auto block w-[220px] sm:w-[300px] h-auto"
+          width="300"
+          height="431"
+        />
 
         <p className="mt-6 text-base sm:text-lg text-mute leading-relaxed max-w-reading mx-auto">
           송영신목장은 경기도 안성에서 저지 소의 A2 우유를 기반으로

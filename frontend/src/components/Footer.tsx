@@ -7,7 +7,14 @@ export function Footer({ homepageUrl }: FooterProps) {
   return (
     <footer className="bg-cream border-t border-line">
       <div className="container-app py-10 text-center">
-        <p className="text-base font-semibold text-ink">송영신목장</p>
+        <img
+          src="/logo.svg"
+          alt="송영신목장"
+          className="mx-auto block h-20 w-auto opacity-90"
+          width="80"
+          height="115"
+        />
+        <p className="mt-3 text-base font-semibold text-ink">송영신목장</p>
         <p className="mt-1 text-xs text-mute">A2 Jersey Hay Milk · Made by Soil</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">

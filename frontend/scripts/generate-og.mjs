@@ -1,10 +1,21 @@
 import { Resvg } from '@resvg/resvg-js'
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT = resolve(__dirname, '../public/og-image.jpg')
+const LOGO_SVG = readFileSync(resolve(__dirname, '../public/logo.svg'), 'utf8')
+
+const inlineLogo = (svgRaw, x, y, width) => {
+  const inner = svgRaw
+    .replace(/<\?xml[^?]*\?>\s*/i, '')
+    .replace(/^<svg[^>]*>/, (m) => {
+      const vbMatch = /viewBox="([^"]+)"/.exec(m)
+      return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="${x}" y="${y}" width="${width}" preserveAspectRatio="xMidYMid meet" ${vbMatch ? `viewBox="${vbMatch[1]}"` : ''}>`
+    })
+  return inner
+}
 
 const W = 1200
 const H = 630
@@ -26,17 +37,19 @@ const svg = `
 
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
 
-  <g transform="translate(80, 110)">
+  ${inlineLogo(LOGO_SVG, W - 380, 60, 320)}
+
+  <g transform="translate(80, 130)">
     <text font-family="Pretendard, system-ui, sans-serif" font-size="22" font-weight="600"
           fill="${SOIL}" letter-spacing="6">MADE BY SOIL</text>
   </g>
 
-  <g transform="translate(80, 210)">
-    <text font-family="Pretendard, system-ui, sans-serif" font-size="78" font-weight="800"
+  <g transform="translate(80, 220)">
+    <text font-family="Pretendard, system-ui, sans-serif" font-size="64" font-weight="800"
           fill="${INK}" letter-spacing="-2">국내산 A2 저지 우유</text>
-    <text x="0" y="90" font-family="Pretendard, system-ui, sans-serif" font-size="76" font-weight="800"
+    <text x="0" y="80" font-family="Pretendard, system-ui, sans-serif" font-size="64" font-weight="800"
           fill="${SOIL_DARK}" letter-spacing="-2">송영신목장</text>
-    <text x="0" y="160" font-family="Pretendard, system-ui, sans-serif" font-size="46" font-weight="700"
+    <text x="0" y="140" font-family="Pretendard, system-ui, sans-serif" font-size="38" font-weight="700"
           fill="${INK}" letter-spacing="-1">A2 Jersey Hay Milk</text>
   </g>
 
