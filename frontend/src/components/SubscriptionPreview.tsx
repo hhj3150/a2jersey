@@ -1,15 +1,14 @@
 interface PreviewItem {
   name: string
-  caption: string
   status: string
 }
 
 const ITEMS: PreviewItem[] = [
-  { name: '750ml',              caption: '매일 마시는 정기구독',          status: '6월 1일 오픈' },
-  { name: '180ml',              caption: '어린이용',                      status: '6월 1일 오픈' },
-  { name: '500ml 플래인 요거트', caption: 'A2 저지(Jersey cow) 베이스',    status: '6월 1일 오픈' },
-  { name: '500ml 단백 요거트',   caption: 'A2 저지(Jersey cow) 베이스',    status: '6월 1일 오픈' },
-  { name: '카페',                caption: '소프트아이스크림 · 방문',       status: '안성팜랜드 內' },
+  { name: '750ml A2 저지 헤이밀크',     status: '6월 1일 오픈' },
+  { name: '180ml A2 저지 헤이밀크',     status: '6월 1일 오픈' },
+  { name: '500ml A2 저지 플래인 요거트', status: '6월 1일 오픈' },
+  { name: '500ml A2 저지 프로틴 요거트', status: '6월 1일 오픈' },
+  { name: '소프트아이스크림 · 카페 방문', status: '안성팜랜드 內' },
 ]
 
 interface SubscriptionPreviewProps {
@@ -32,10 +31,7 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
         <ul className="mt-8 grid gap-3 sm:grid-cols-2">
           {ITEMS.map((it) => (
             <li key={it.name} className="card flex items-center justify-between">
-              <div>
-                <p className="text-base font-semibold text-ink">{it.name}</p>
-                <p className="text-xs text-mute mt-0.5">{it.caption}</p>
-              </div>
+              <p className="text-base font-semibold text-ink">{it.name}</p>
               <span className="text-xs font-medium text-soil-dark whitespace-nowrap ml-3">
                 {it.status}
               </span>

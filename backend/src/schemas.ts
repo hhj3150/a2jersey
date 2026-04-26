@@ -12,11 +12,11 @@ export const interestEnum = z.enum([
 export type Interest = z.infer<typeof interestEnum>
 
 export const interestLabels: Record<Interest, string> = {
-  '750ml': '750ml 정기구독',
-  '180ml': '180ml 어린이용',
-  'yogurt-plain': '500ml 플래인 요거트',
-  'yogurt-protein': '500ml 단백 요거트',
-  softserve: '소프트아이스크림 / 카페 방문',
+  '750ml': '750ml A2 저지 헤이밀크',
+  '180ml': '180ml A2 저지 헤이밀크',
+  'yogurt-plain': '500ml A2 저지 플래인 요거트',
+  'yogurt-protein': '500ml A2 저지 프로틴 요거트',
+  softserve: '소프트아이스크림 · 카페 방문',
   other: '기타',
   yogurt: '요거트 (구버전)',
 }
