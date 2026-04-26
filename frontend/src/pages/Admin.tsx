@@ -395,6 +395,15 @@ export function Admin() {
   const [checked, setChecked] = useState(false)
 
   useEffect(() => {
+    document.title = 'a2jersey 관리자'
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="robots"]')
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'robots'
+      document.head.appendChild(meta)
+    }
+    meta.content = 'noindex, nofollow, noarchive'
+
     const stored = getAdminToken()
     if (!stored) {
       setChecked(true)

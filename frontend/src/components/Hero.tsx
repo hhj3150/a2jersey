@@ -20,7 +20,6 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
           width="512"
           height="414"
           decoding="async"
-          fetchPriority="high"
         />
 
         <h1 className="mt-5 text-[2rem] sm:text-5xl font-bold tracking-tight-kr leading-[1.15] text-ink">
