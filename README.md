@@ -85,14 +85,17 @@ npm run dev
 
 | 메서드 | 경로 | 인증 | 설명 |
 |---|---|---|---|
-| POST | `/api/register` | — | 사전회원 등록. 중복 전화번호 차단. Rate-limit 적용. |
+| POST | `/api/register` | — | 사전회원 등록. 중복 전화번호 차단. Rate-limit (10분 5회). |
 | GET | `/api/health` | — | 헬스체크 |
-| GET | `/api/admin/leads` | Bearer | 가입자 목록. `?page=&pageSize=&q=&ref=` 쿼리 지원. 응답에 `refStats` 포함. |
-| GET | `/api/admin/export.csv` | Bearer | 전체 가입자 CSV (UTF-8 BOM, Excel 호환). |
-| DELETE | `/api/admin/leads/:id` | Bearer | 가입자 단건 삭제 (테스트 데이터 정리용). |
+| GET | `/api/admin/leads` | Basic | 가입자 목록. `?page=&pageSize=&q=&ref=` 쿼리 지원. 응답에 `refStats` 포함. |
+| GET | `/api/admin/stats` | Basic | 대시보드 통계 (total · last24h · smsConsent · refStats). |
+| GET | `/api/admin/export.csv` | Basic | 전체 가입자 CSV (UTF-8 BOM, Excel 호환). |
+| GET | `/api/admin/backup` | Basic | SQLite DB 파일 binary (WAL checkpoint 후). GitHub Actions 일일 백업에서 호출. |
+| DELETE | `/api/admin/leads/:id` | Basic | 가입자 단건 삭제. |
 
 **관리자 인증**: HTTP Basic Auth — `Authorization: Basic base64(ADMIN_USER:ADMIN_PASSWORD)`.
 `ADMIN_USER` 또는 `ADMIN_PASSWORD`가 미설정·기본값이면 `503`. 비교는 timing-safe.
+모든 admin 라우트에 rate-limit (15분 100회 / IP) 적용.
 
 **관리자 UI**: `https://<도메인>/admin` 접속 → 아이디·비밀번호 입력. sessionStorage에 토큰 보관(탭 종료 시 자동 로그아웃).
 

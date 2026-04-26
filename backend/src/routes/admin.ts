@@ -1,10 +1,20 @@
 import { Router, type Request, type Response } from 'express'
+import rateLimit from 'express-rate-limit'
 import { db, type LeadRow } from '../db.js'
 import { requireAdmin } from '../middleware/admin.js'
 import { interestLabels, type Interest } from '../schemas.js'
 
 const router = Router()
 
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { ok: false, error: '관리자 요청이 너무 많습니다 (15분간 100회 제한)' },
+})
+
+router.use(adminLimiter)
 router.use(requireAdmin)
 
 const parsePositiveInt = (raw: unknown, fallback: number, max: number): number => {
@@ -160,6 +170,48 @@ router.delete('/leads/:id', (req: Request, res: Response) => {
     return res.status(404).json({ ok: false, error: 'Not found' })
   }
   return res.json({ ok: true, deletedId: id })
+})
+
+router.get('/backup', async (_req: Request, res: Response) => {
+  try {
+    db.pragma('wal_checkpoint(TRUNCATE)')
+    const dbPath = process.env.DATABASE_PATH || './data/leads.db'
+    const { readFileSync } = await import('node:fs')
+    const buf = readFileSync(dbPath)
+    const today = new Date().toISOString().slice(0, 10)
+    res.setHeader('Content-Type', 'application/octet-stream')
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="a2jersey-leads-${today}.db"`,
+    )
+    res.setHeader('X-DB-Size', String(buf.length))
+    return res.send(buf)
+  } catch (err) {
+    console.error('[backup] failed:', err)
+    return res.status(500).json({ ok: false, error: 'Backup failed' })
+  }
+})
+
+router.get('/stats', (_req: Request, res: Response) => {
+  const totalRow = db.prepare('SELECT COUNT(*) AS c FROM leads').get() as { c: number }
+  const last24Row = db
+    .prepare(`SELECT COUNT(*) AS c FROM leads WHERE created_at >= datetime('now', '-1 day')`)
+    .get() as { c: number }
+  const smsConsentRow = db
+    .prepare('SELECT COUNT(*) AS c FROM leads WHERE sms_consent = 1')
+    .get() as { c: number }
+  const refRows = db
+    .prepare('SELECT ref, COUNT(*) AS c FROM leads GROUP BY ref ORDER BY c DESC')
+    .all() as Array<{ ref: string; c: number }>
+
+  return res.json({
+    ok: true,
+    total: totalRow.c,
+    last24h: last24Row.c,
+    smsConsent: smsConsentRow.c,
+    refStats: refRows,
+    serverTime: new Date().toISOString(),
+  })
 })
 
 export default router
