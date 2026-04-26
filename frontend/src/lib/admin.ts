@@ -14,6 +14,14 @@ export const clearAdminToken = (): void => {
   sessionStorage.removeItem(TOKEN_KEY)
 }
 
+export const buildBasicToken = (user: string, password: string): string => {
+  const raw = `${user}:${password}`
+  const utf8 = new TextEncoder().encode(raw)
+  let bin = ''
+  for (let i = 0; i < utf8.length; i++) bin += String.fromCharCode(utf8[i]!)
+  return btoa(bin)
+}
+
 export interface AdminLead {
   id: number
   name: string
@@ -43,7 +51,7 @@ export interface AdminError {
 }
 
 const headers = (token: string): HeadersInit => ({
-  Authorization: `Bearer ${token}`,
+  Authorization: `Basic ${token}`,
 })
 
 export async function fetchLeads(params: {

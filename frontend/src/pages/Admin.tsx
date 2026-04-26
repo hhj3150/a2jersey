@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import {
+  buildBasicToken,
   clearAdminToken,
   deleteLead,
   downloadCsv,
@@ -29,23 +30,25 @@ const formatDate = (iso: string): string => {
 }
 
 function LoginScreen({ onSuccess }: { onSuccess: (token: string) => void }) {
+  const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!password.trim()) return
+    if (!userId.trim() || !password.trim()) return
     setSubmitting(true)
     setError(null)
-    const ok = await verifyToken(password.trim())
+    const token = buildBasicToken(userId.trim(), password)
+    const ok = await verifyToken(token)
     setSubmitting(false)
     if (!ok) {
-      setError('비밀번호가 올바르지 않습니다')
+      setError('아이디 또는 비밀번호가 올바르지 않습니다')
       return
     }
-    setAdminToken(password.trim())
-    onSuccess(password.trim())
+    setAdminToken(token)
+    onSuccess(token)
   }
 
   return (
@@ -56,18 +59,29 @@ function LoginScreen({ onSuccess }: { onSuccess: (token: string) => void }) {
       >
         <h1 className="text-xl font-semibold text-stone-900">관리자 로그인</h1>
         <p className="text-sm text-stone-500">a2jersey 사전회원 관리</p>
-        <input
-          type="password"
-          autoFocus
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="ADMIN_PASSWORD"
-          className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-        />
+        <div className="space-y-3">
+          <input
+            type="text"
+            autoFocus
+            autoComplete="username"
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            placeholder="아이디"
+            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+          />
+          <input
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="비밀번호"
+            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+          />
+        </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
-          disabled={submitting || !password.trim()}
+          disabled={submitting || !userId.trim() || !password.trim()}
           className="w-full py-2 bg-stone-900 text-white rounded-md hover:bg-stone-800 disabled:opacity-50"
         >
           {submitting ? '확인 중...' : '로그인'}
@@ -96,7 +110,7 @@ function LeadsTable({
     <div className="bg-white border border-stone-200 rounded-lg overflow-x-auto">
       <table className="min-w-full text-sm">
         <thead className="bg-stone-50 text-stone-700">
-          <tr>
+          <tr className="whitespace-nowrap">
             <th className="px-3 py-2 text-left">ID</th>
             <th className="px-3 py-2 text-left">등록일시</th>
             <th className="px-3 py-2 text-left">이름</th>
@@ -113,10 +127,10 @@ function LeadsTable({
             <tr key={row.id} className="border-t border-stone-100 hover:bg-stone-50">
               <td className="px-3 py-2 text-stone-500 tabular-nums">{row.id}</td>
               <td className="px-3 py-2 tabular-nums whitespace-nowrap">{formatDate(row.createdAt)}</td>
-              <td className="px-3 py-2 font-medium">{row.name}</td>
+              <td className="px-3 py-2 font-medium whitespace-nowrap">{row.name}</td>
               <td className="px-3 py-2 tabular-nums whitespace-nowrap">{formatPhone(row.phone)}</td>
-              <td className="px-3 py-2">{row.region}</td>
-              <td className="px-3 py-2 text-stone-600">
+              <td className="px-3 py-2 whitespace-nowrap">{row.region}</td>
+              <td className="px-3 py-2 text-stone-600 min-w-[180px]">
                 {row.interests.map(interestLabel).join(' · ')}
               </td>
               <td className="px-3 py-2 text-center">

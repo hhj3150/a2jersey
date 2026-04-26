@@ -9,21 +9,41 @@ const timingSafeEqual = (a: string, b: string): boolean => {
   return diff === 0
 }
 
+const decodeBasic = (raw: string): { user: string; pass: string } | null => {
+  if (!raw.startsWith('Basic ')) return null
+  try {
+    const decoded = Buffer.from(raw.slice(6).trim(), 'base64').toString('utf8')
+    const idx = decoded.indexOf(':')
+    if (idx < 0) return null
+    return { user: decoded.slice(0, idx), pass: decoded.slice(idx + 1) }
+  } catch {
+    return null
+  }
+}
+
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected || expected === 'change-me-in-production') {
+  const expectedUser = process.env.ADMIN_USER
+  const expectedPassword = process.env.ADMIN_PASSWORD
+
+  if (
+    !expectedUser ||
+    !expectedPassword ||
+    expectedPassword === 'change-me-in-production'
+  ) {
     return res.status(503).json({
       ok: false,
-      error: 'ADMIN_PASSWORD is not configured on server',
+      error: 'ADMIN_USER / ADMIN_PASSWORD is not configured on server',
     })
   }
 
-  const header = req.headers.authorization || ''
-  const fromHeader = header.startsWith('Bearer ') ? header.slice(7) : ''
-  const fromQuery = typeof req.query.key === 'string' ? req.query.key : ''
-  const provided = fromHeader || fromQuery
+  const creds = decodeBasic(req.headers.authorization || '')
 
-  if (!provided || !timingSafeEqual(provided, expected)) {
+  if (
+    !creds ||
+    !timingSafeEqual(creds.user, expectedUser) ||
+    !timingSafeEqual(creds.pass, expectedPassword)
+  ) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="a2jersey-admin"')
     return res.status(401).json({ ok: false, error: 'Unauthorized' })
   }
 

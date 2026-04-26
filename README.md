@@ -76,7 +76,8 @@ npm run dev
 | `PORT` | Express 서버 포트 | `4000` |
 | `DATABASE_PATH` | SQLite 파일 경로 | `./data/leads.db` |
 | `CORS_ORIGINS` | 허용 오리진 (콤마 구분) | `http://localhost:5173,https://a2jersey.netlify.app` |
-| `ADMIN_PASSWORD` | 관리자 페이지 비밀번호 (24자 이상 권장) | `y77c...` |
+| `ADMIN_USER` | 관리자 아이디 | `admin` |
+| `ADMIN_PASSWORD` | 관리자 비밀번호 | (강한 비밀번호 권장) |
 
 ---
 
@@ -90,10 +91,10 @@ npm run dev
 | GET | `/api/admin/export.csv` | Bearer | 전체 가입자 CSV (UTF-8 BOM, Excel 호환). |
 | DELETE | `/api/admin/leads/:id` | Bearer | 가입자 단건 삭제 (테스트 데이터 정리용). |
 
-**관리자 인증**: `Authorization: Bearer <ADMIN_PASSWORD>` 헤더 또는 `?key=<ADMIN_PASSWORD>` 쿼리.
-서버 환경변수 `ADMIN_PASSWORD`가 미설정·기본값이면 `503`. 비교는 timing-safe.
+**관리자 인증**: HTTP Basic Auth — `Authorization: Basic base64(ADMIN_USER:ADMIN_PASSWORD)`.
+`ADMIN_USER` 또는 `ADMIN_PASSWORD`가 미설정·기본값이면 `503`. 비교는 timing-safe.
 
-**관리자 UI**: `https://<도메인>/admin` 접속 → ADMIN_PASSWORD 입력. sessionStorage에 토큰 보관(탭 종료 시 자동 로그아웃).
+**관리자 UI**: `https://<도메인>/admin` 접속 → 아이디·비밀번호 입력. sessionStorage에 토큰 보관(탭 종료 시 자동 로그아웃).
 
 `POST /api/register` body:
 
