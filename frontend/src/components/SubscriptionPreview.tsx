@@ -11,7 +11,7 @@ interface PreviewItem {
 
 const ITEMS: PreviewItem[] = [
   { name: '750ml A2 저지 헤이밀크',     price: '12,000원', status: '6월 1일 오픈' },
-  { name: '180ml A2 저지 헤이밀크',     price: '3,200원',  status: '6월 1일 오픈' },
+  { name: '180ml A2 저지 헤이밀크',     price: '3,500원',  status: '6월 1일 오픈' },
   { name: '500ml A2 저지 플래인 요거트', price: '10,000원', status: '6월 1일 오픈' },
   { name: '500ml A2 저지 프로틴 요거트', price: '10,000원', status: '6월 1일 오픈' },
 ]
