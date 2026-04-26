@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import registerRouter from './routes/register.js'
+import adminRouter from './routes/admin.js'
 
 const app = express()
 const PORT = Number(process.env.PORT) || 4000
@@ -33,6 +34,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api', registerRouter)
+app.use('/api/admin', adminRouter)
 
 app.use((_req, res) => {
   res.status(404).json({ ok: false, error: 'Not found' })
