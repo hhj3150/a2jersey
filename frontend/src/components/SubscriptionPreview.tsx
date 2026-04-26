@@ -1,5 +1,3 @@
-import { computeDDay } from '../lib/dday'
-
 interface PreviewItem {
   name: string
   caption: string
@@ -7,21 +5,18 @@ interface PreviewItem {
 }
 
 const ITEMS: PreviewItem[] = [
-  { name: '750ml',  caption: '매일 마시는 정기구독',   status: '6월 1일 오픈' },
-  { name: '180ml',  caption: '어린이 · 체험용',         status: '6월 1일 오픈' },
-  { name: '요거트', caption: 'A2 저지유 베이스',       status: '준비 중' },
-  { name: '카페',   caption: '소프트아이스크림 · 방문', status: '안성팜랜드 內' },
+  { name: '750ml',              caption: '매일 마시는 정기구독',     status: '6월 1일 오픈' },
+  { name: '180ml',              caption: '어린이용',                 status: '6월 1일 오픈' },
+  { name: '500ml 플래인 요거트', caption: 'A2 저지유 베이스',         status: '6월 1일 오픈' },
+  { name: '500ml 단백 요거트',   caption: 'A2 저지유 베이스',         status: '6월 1일 오픈' },
+  { name: '카페',                caption: '소프트아이스크림 · 방문',  status: '안성팜랜드 內' },
 ]
 
 interface SubscriptionPreviewProps {
   launchDate: string
-  smartstoreUrl: string
 }
 
-export function SubscriptionPreview({ launchDate, smartstoreUrl }: SubscriptionPreviewProps) {
-  const dday = computeDDay(launchDate)
-  const isLive = dday.phase === 'live' || dday.phase === 'today'
-
+export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
   return (
     <section className="section" aria-labelledby="subscription-preview-title">
       <div className="container-app">
@@ -47,23 +42,6 @@ export function SubscriptionPreview({ launchDate, smartstoreUrl }: SubscriptionP
             </li>
           ))}
         </ul>
-
-        <div className="mt-8 rounded-2xl border border-line bg-surface p-5 text-center">
-          <p className="text-xs uppercase tracking-[0.18em] text-soil font-medium">
-            오픈 시 구매처
-          </p>
-          <p className="mt-2 text-sm text-ink leading-relaxed">
-            정기구독은 송영신목장 <span className="font-semibold">공식 스마트스토어</span>에서 진행됩니다.
-          </p>
-          <a
-            href={smartstoreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary mt-4"
-          >
-            {isLive ? '스마트스토어에서 신청하기 →' : '스마트스토어 미리보기 →'}
-          </a>
-        </div>
       </div>
     </section>
   )

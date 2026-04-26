@@ -7,7 +7,6 @@ import {
   type RegisterFormValues,
 } from '../lib/schemas'
 import { postRegister, getRefFromUrl } from '../lib/api'
-import { env } from '../env'
 
 function SuccessPanel() {
   return (
@@ -37,17 +36,7 @@ function SuccessPanel() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-soil-dark mt-0.5">•</span>
-                <span>
-                  공식 스마트스토어에서 정기구독 신청<br />
-                  <a
-                    href={env.smartstoreUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-soil-dark underline underline-offset-2 break-all"
-                  >
-                    {env.smartstoreUrl}
-                  </a>
-                </span>
+                <span>6월 1일 정기구독 오픈 안내 (공식 홈페이지·문자)</span>
               </li>
             </ul>
           </div>

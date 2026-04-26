@@ -4,10 +4,9 @@ import { computeDDay } from '../lib/dday'
 interface HeroProps {
   onCtaClick: () => void
   launchDate: string
-  smartstoreUrl: string
 }
 
-export function Hero({ onCtaClick, launchDate, smartstoreUrl }: HeroProps) {
+export function Hero({ onCtaClick, launchDate }: HeroProps) {
   const dday = useMemo(() => computeDDay(launchDate), [launchDate])
   const launchLabel = formatLaunchLabel(launchDate)
 
@@ -36,24 +35,13 @@ export function Hero({ onCtaClick, launchDate, smartstoreUrl }: HeroProps) {
           {dday.phase === 'live' ? '정기구독 오픈 중' : `정기구독 오픈까지 ${dday.label}`}
         </div>
 
-        {dday.phase === 'live' ? (
-          <a
-            href={smartstoreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary mt-6 w-full sm:w-auto"
-          >
-            스마트스토어에서 정기구독 신청하기 →
-          </a>
-        ) : (
-          <button
-            type="button"
-            onClick={onCtaClick}
-            className="btn-primary mt-6 w-full sm:w-auto"
-          >
-            {launchLabel} 오픈 알림 받기
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onCtaClick}
+          className="btn-primary mt-6 w-full sm:w-auto"
+        >
+          {dday.phase === 'live' ? '사전회원 등록하기' : `${launchLabel} 오픈 알림 받기`}
+        </button>
       </div>
     </section>
   )
