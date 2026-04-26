@@ -129,3 +129,101 @@ export async function verifyToken(token: string): Promise<boolean> {
   const res = await fetchLeads({ token, page: 1, pageSize: 1 })
   return res.ok === true
 }
+
+export interface BroadcastPreview {
+  ok: true
+  targetCount: number
+  daytimeKST: boolean
+  solapiConfigured: boolean
+  serverDryRun: boolean
+}
+
+export async function fetchBroadcastPreview(
+  token: string,
+  refFilter?: string,
+  smsConsentOnly = true,
+): Promise<BroadcastPreview | AdminError> {
+  const qs = new URLSearchParams()
+  if (refFilter) qs.set('ref', refFilter)
+  qs.set('smsConsentOnly', String(smsConsentOnly))
+  try {
+    const res = await fetch(
+      `${env.apiUrl}/api/admin/broadcast/preview?${qs.toString()}`,
+      { headers: headers(token) },
+    )
+    return await res.json()
+  } catch (err) {
+    console.error('[fetchBroadcastPreview] error:', err)
+    return { ok: false, error: '네트워크 오류' }
+  }
+}
+
+export interface BroadcastResult {
+  ok: boolean
+  historyId: number
+  dryRun: boolean
+  targetCount: number
+  sentCount: number
+  failedCount: number
+  cost?: number
+  groupId?: string
+  errorSummary?: string
+  finalText: string
+}
+
+export interface BroadcastInput {
+  message: string
+  refFilter?: string
+  smsConsentOnly?: boolean
+  testNumber?: string
+  dryRun?: boolean
+  bypassNightCheck?: boolean
+  skipAdPrefix?: boolean
+  skipOptOut?: boolean
+}
+
+export async function sendBroadcast(
+  token: string,
+  input: BroadcastInput,
+): Promise<BroadcastResult | AdminError> {
+  try {
+    const res = await fetch(`${env.apiUrl}/api/admin/broadcast`, {
+      method: 'POST',
+      headers: { ...headers(token), 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+    return await res.json()
+  } catch (err) {
+    console.error('[sendBroadcast] error:', err)
+    return { ok: false, error: '네트워크 오류' }
+  }
+}
+
+export interface BroadcastHistoryItem {
+  id: number
+  sentAt: string
+  sender: string
+  message: string
+  targetFilter: string | null
+  targetCount: number
+  sentCount: number
+  failedCount: number
+  cost: number | null
+  dryRun: boolean
+  groupId: string | null
+  errorSummary: string | null
+}
+
+export async function fetchBroadcastHistory(
+  token: string,
+): Promise<{ ok: true; items: BroadcastHistoryItem[] } | AdminError> {
+  try {
+    const res = await fetch(`${env.apiUrl}/api/admin/broadcasts`, {
+      headers: headers(token),
+    })
+    return await res.json()
+  } catch (err) {
+    console.error('[fetchBroadcastHistory] error:', err)
+    return { ok: false, error: '네트워크 오류' }
+  }
+}

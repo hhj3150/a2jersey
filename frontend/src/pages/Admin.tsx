@@ -12,6 +12,7 @@ import {
   type LeadsResponse,
 } from '../lib/admin'
 import { interestOptions } from '../lib/schemas'
+import { BroadcastModal } from './BroadcastModal'
 
 const interestLabel = (k: string): string =>
   interestOptions.find((o) => o.value === k)?.label ?? k
@@ -186,6 +187,7 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
   const [refFilter, setRefFilter] = useState('')
 
   const [downloading, setDownloading] = useState(false)
+  const [showBroadcast, setShowBroadcast] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -248,6 +250,13 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
             <p className="text-xs text-stone-500">사전회원 모집 대시보드</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowBroadcast(true)}
+              className="px-3 py-1.5 bg-stone-900 text-white text-sm rounded-md hover:bg-stone-800"
+            >
+              📨 일괄 발송
+            </button>
             <button
               type="button"
               onClick={handleDownloadCsv}
@@ -369,6 +378,14 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
           </>
         ) : null}
       </main>
+
+      {showBroadcast && (
+        <BroadcastModal
+          token={token}
+          onClose={() => setShowBroadcast(false)}
+          defaultRefFilter={refFilter || undefined}
+        />
+      )}
     </div>
   )
 }

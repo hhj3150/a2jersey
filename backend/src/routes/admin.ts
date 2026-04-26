@@ -1,8 +1,16 @@
 import { Router, type Request, type Response } from 'express'
 import rateLimit from 'express-rate-limit'
-import { db, type LeadRow } from '../db.js'
+import { z } from 'zod'
+import { db, type LeadRow, type BroadcastRow } from '../db.js'
 import { requireAdmin } from '../middleware/admin.js'
 import { interestLabels, type Interest } from '../schemas.js'
+import {
+  sendBulkSms,
+  isWithinDaytimeKST,
+  composeMarketingText,
+  isSolapiConfigured,
+  type SolapiConfig,
+} from '../lib/solapi.js'
 
 const router = Router()
 
@@ -202,6 +210,178 @@ router.get('/backup', async (_req: Request, res: Response) => {
     console.error('[backup] failed:', err)
     return res.status(500).json({ ok: false, error: 'Backup failed' })
   }
+})
+
+const broadcastSchema = z.object({
+  message: z
+    .string({ required_error: '메시지를 입력해주세요' })
+    .trim()
+    .min(1, '메시지를 입력해주세요')
+    .max(1500, '메시지가 너무 깁니다 (최대 1500자)'),
+  refFilter: z.string().trim().max(20).optional(),
+  smsConsentOnly: z.boolean().optional().default(true),
+  testNumber: z.string().trim().max(20).optional(),
+  dryRun: z.boolean().optional(),
+  bypassNightCheck: z.boolean().optional().default(false),
+  skipAdPrefix: z.boolean().optional().default(false),
+  skipOptOut: z.boolean().optional().default(false),
+})
+
+const solapiCfg = (): SolapiConfig => ({
+  apiKey: process.env.SOLAPI_API_KEY,
+  apiSecret: process.env.SOLAPI_API_SECRET,
+  from: process.env.SOLAPI_FROM_NUMBER,
+})
+
+const insertBroadcast = db.prepare(`
+  INSERT INTO broadcast_history
+    (sender, message, target_filter, target_count, sent_count, failed_count, cost, dry_run, group_id, error_summary)
+  VALUES
+    (@sender, @message, @target_filter, @target_count, @sent_count, @failed_count, @cost, @dry_run, @group_id, @error_summary)
+`)
+
+router.get('/broadcast/preview', (req: Request, res: Response) => {
+  const refFilter = (typeof req.query.ref === 'string' ? req.query.ref.trim() : '').slice(0, 20)
+  const smsConsentOnly = req.query.smsConsentOnly !== 'false'
+
+  const where: string[] = []
+  const params: Record<string, string> = {}
+  if (smsConsentOnly) where.push('sms_consent = 1')
+  if (refFilter) {
+    where.push('ref = @ref')
+    params.ref = refFilter
+  }
+  const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : ''
+
+  const row = db.prepare(`SELECT COUNT(*) AS c FROM leads ${whereSql}`).get(params) as { c: number }
+  return res.json({
+    ok: true,
+    targetCount: row.c,
+    daytimeKST: isWithinDaytimeKST(),
+    solapiConfigured: isSolapiConfigured(solapiCfg()),
+    serverDryRun: process.env.BROADCAST_DRY_RUN === 'true',
+  })
+})
+
+router.post('/broadcast', async (req: Request, res: Response) => {
+  let parsed
+  try {
+    parsed = broadcastSchema.parse(req.body)
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ ok: false, error: '입력값을 확인해주세요', fieldErrors: err.flatten().fieldErrors })
+    }
+    throw err
+  }
+
+  if (!parsed.bypassNightCheck && !isWithinDaytimeKST()) {
+    return res.status(409).json({
+      ok: false,
+      error: '야간 발송 차단 (KST 21:00 ~ 08:00). 긴급 시 bypassNightCheck=true로 명시적 지정.',
+      code: 'NIGHT_BLOCKED',
+    })
+  }
+
+  const cfg = solapiCfg()
+  const serverForcesDryRun = process.env.BROADCAST_DRY_RUN === 'true'
+  const dryRun = serverForcesDryRun || parsed.dryRun === true || !isSolapiConfigured(cfg)
+
+  let leads: { phone: string }[] = []
+  if (parsed.testNumber) {
+    leads = [{ phone: parsed.testNumber.replace(/[^0-9]/g, '') }]
+  } else {
+    const where: string[] = []
+    const params: Record<string, string> = {}
+    if (parsed.smsConsentOnly) where.push('sms_consent = 1')
+    if (parsed.refFilter) {
+      where.push('ref = @ref')
+      params.ref = parsed.refFilter
+    }
+    const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : ''
+    leads = db
+      .prepare(`SELECT phone FROM leads ${whereSql} ORDER BY id`)
+      .all(params) as { phone: string }[]
+  }
+
+  if (leads.length === 0) {
+    return res.status(400).json({ ok: false, error: '발송 대상이 없습니다 (sms_consent=true 인 가입자가 없거나 필터 조건과 일치하는 대상 없음)' })
+  }
+
+  const finalText = composeMarketingText(parsed.message, {
+    skipAdPrefix: parsed.skipAdPrefix,
+    skipOptOut: parsed.skipOptOut,
+  })
+
+  const messages = leads.map((l) => ({ to: l.phone, text: finalText }))
+
+  let sent = 0
+  let failed = 0
+  let cost: number | undefined
+  let groupId: string | undefined
+  let errorSummary: string | undefined
+
+  if (dryRun) {
+    sent = messages.length
+    cost = undefined
+  } else {
+    const result = await sendBulkSms(cfg, messages)
+    sent = result.registered
+    failed = result.failed
+    cost = result.cost
+    groupId = result.groupId
+    if (result.failedDetails.length > 0) {
+      errorSummary = result.failedDetails.slice(0, 5).map((d) => `${d.to}: ${d.statusMessage || d.statusCode || '?'}`).join(' | ')
+    }
+  }
+
+  const info = insertBroadcast.run({
+    sender: 'admin',
+    message: finalText,
+    target_filter: parsed.refFilter || (parsed.testNumber ? `test:${parsed.testNumber}` : null),
+    target_count: messages.length,
+    sent_count: sent,
+    failed_count: failed,
+    cost: cost ?? null,
+    dry_run: dryRun ? 1 : 0,
+    group_id: groupId ?? null,
+    error_summary: errorSummary ?? null,
+  })
+
+  return res.json({
+    ok: failed === 0,
+    historyId: info.lastInsertRowid,
+    dryRun,
+    targetCount: messages.length,
+    sentCount: sent,
+    failedCount: failed,
+    cost,
+    groupId,
+    errorSummary,
+    finalText,
+  })
+})
+
+router.get('/broadcasts', (_req: Request, res: Response) => {
+  const rows = db
+    .prepare('SELECT * FROM broadcast_history ORDER BY sent_at DESC LIMIT 50')
+    .all() as BroadcastRow[]
+  return res.json({
+    ok: true,
+    items: rows.map((r) => ({
+      id: r.id,
+      sentAt: r.sent_at,
+      sender: r.sender,
+      message: r.message,
+      targetFilter: r.target_filter,
+      targetCount: r.target_count,
+      sentCount: r.sent_count,
+      failedCount: r.failed_count,
+      cost: r.cost,
+      dryRun: r.dry_run === 1,
+      groupId: r.group_id,
+      errorSummary: r.error_summary,
+    })),
+  })
 })
 
 router.get('/stats', (_req: Request, res: Response) => {
