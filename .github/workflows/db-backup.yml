@@ -65,13 +65,14 @@ jobs:
       - name: Create release with backup asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           TAG="db-backup-${{ steps.ts.outputs.date }}"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" backup/*.db.gz --clobber
+          if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG" backup/*.db.gz --clobber --repo "$REPO"
           else
-            gh release create "$TAG" backup/*.db.gz \
+            gh release create "$TAG" backup/*.db.gz --repo "$REPO" \
               --title "DB backup ${{ steps.ts.outputs.date }}" \
               --notes "Automated daily SQLite backup of a2jersey leads DB."
           fi
@@ -79,13 +80,14 @@ jobs:
       - name: Prune old backups (keep 30 days)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           CUTOFF=$(date -u -d '30 days ago' '+%Y-%m-%d' 2>/dev/null || date -u -v-30d '+%Y-%m-%d')
-          gh release list --limit 200 --json tagName,createdAt \
+          gh release list --repo "$REPO" --limit 200 --json tagName,createdAt \
             --jq ".[] | select(.tagName | startswith(\"db-backup-\")) | select(.tagName < \"db-backup-$CUTOFF\") | .tagName" \
             | while read -r tag; do
               [ -z "$tag" ] && continue
               echo "Deleting old backup: $tag"
-              gh release delete "$tag" --yes --cleanup-tag || true
+              gh release delete "$tag" --yes --cleanup-tag --repo "$REPO" || true
             done
