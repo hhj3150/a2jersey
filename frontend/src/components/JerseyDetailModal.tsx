@@ -9,6 +9,7 @@ export interface JerseyDetail {
   tags: string[]
   image: string
   backdrop?: string
+  photo?: { src: string; caption: string }
 }
 
 interface Props {
@@ -89,6 +90,21 @@ export function JerseyDetailModal({ detail, onClose }: Props) {
               <p key={i}>{p}</p>
             ))}
           </div>
+
+          {detail.photo && (
+            <figure className="mt-6">
+              <img
+                src={detail.photo.src}
+                alt={detail.photo.caption}
+                className="block w-full rounded-xl shadow-sm ring-1 ring-line"
+                loading="lazy"
+              />
+              <figcaption className="mt-2 text-center text-[11px] tracking-wide text-mute">
+                {detail.photo.caption}
+              </figcaption>
+            </figure>
+          )}
+
           <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
             {detail.tags.map((t) => (
               <span
