@@ -27,6 +27,10 @@ export interface AdminLead {
   name: string
   phone: string
   region: string
+  postcode: string | null
+  addressRoad: string | null
+  addressJibun: string | null
+  addressDetail: string | null
   interests: Interest[]
   smsConsent: boolean
   ref: string

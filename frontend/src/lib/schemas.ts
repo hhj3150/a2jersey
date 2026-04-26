@@ -21,6 +21,7 @@ export const interestOptions: { value: Interest; label: string }[] = [
 ]
 
 const PHONE_REGEX = /^01[016789]-?\d{3,4}-?\d{4}$/
+const POSTCODE_REGEX = /^\d{5}$/
 
 export const registerFormSchema = z.object({
   name: z
@@ -32,11 +33,21 @@ export const registerFormSchema = z.object({
     .string()
     .trim()
     .regex(PHONE_REGEX, '올바른 휴대폰 번호 형식이 아닙니다 (010으로 시작)'),
-  region: z
+  postcode: z
     .string()
     .trim()
-    .min(1, '거주 지역을 입력해주세요')
-    .max(100),
+    .regex(POSTCODE_REGEX, '주소찾기 버튼으로 주소를 선택해주세요'),
+  addressRoad: z
+    .string()
+    .trim()
+    .min(1, '주소찾기 버튼으로 주소를 선택해주세요')
+    .max(200),
+  addressJibun: z.string().trim().max(200).optional(),
+  addressDetail: z
+    .string()
+    .trim()
+    .max(100, '상세주소가 너무 깁니다')
+    .optional(),
   interests: z
     .array(interestEnum)
     .min(1, '관심 상품을 1개 이상 선택해주세요'),

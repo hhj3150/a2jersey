@@ -8,12 +8,12 @@ const POINTS: PointCard[] = [
   {
     badge: 'A2',
     title: 'A2 단백질',
-    body: '국내에서 보기 드문 A2 단백질만 가진 저지소 원유로 생산합니다.',
+    body: '국내에서 보기 드문 A2 단백질만 가진 저지(Jersey cow) 원유로 생산합니다.',
   },
   {
     badge: 'Jersey',
-    title: '저지 원유',
-    body: '저지소의 짙고 부드러운 우유. 고소함과 깊이를 그대로 담았습니다.',
+    title: '저지(Jersey cow) 원유',
+    body: '저지(Jersey cow)의 짙고 부드러운 우유. 고소함과 깊이를 그대로 담았습니다.',
   },
   {
     badge: 'Hay Milk',

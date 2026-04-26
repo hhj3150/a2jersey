@@ -115,7 +115,8 @@ function LeadsTable({
             <th className="px-3 py-2 text-left">등록일시</th>
             <th className="px-3 py-2 text-left">이름</th>
             <th className="px-3 py-2 text-left">휴대폰</th>
-            <th className="px-3 py-2 text-left">지역</th>
+            <th className="px-3 py-2 text-left">우편번호</th>
+            <th className="px-3 py-2 text-left">주소</th>
             <th className="px-3 py-2 text-left">관심상품</th>
             <th className="px-3 py-2 text-center">SMS</th>
             <th className="px-3 py-2 text-left">유입</th>
@@ -124,12 +125,27 @@ function LeadsTable({
         </thead>
         <tbody>
           {items.map((row) => (
-            <tr key={row.id} className="border-t border-stone-100 hover:bg-stone-50">
+            <tr key={row.id} className="border-t border-stone-100 hover:bg-stone-50 align-top">
               <td className="px-3 py-2 text-stone-500 tabular-nums">{row.id}</td>
               <td className="px-3 py-2 tabular-nums whitespace-nowrap">{formatDate(row.createdAt)}</td>
               <td className="px-3 py-2 font-medium whitespace-nowrap">{row.name}</td>
               <td className="px-3 py-2 tabular-nums whitespace-nowrap">{formatPhone(row.phone)}</td>
-              <td className="px-3 py-2 whitespace-nowrap">{row.region}</td>
+              <td className="px-3 py-2 tabular-nums whitespace-nowrap">{row.postcode ?? '-'}</td>
+              <td className="px-3 py-2 min-w-[260px] text-stone-700">
+                {row.addressRoad ? (
+                  <>
+                    <div>{row.addressRoad}</div>
+                    {row.addressDetail && (
+                      <div className="text-stone-500 text-xs">{row.addressDetail}</div>
+                    )}
+                    {row.addressJibun && (
+                      <div className="text-stone-400 text-xs mt-0.5">지번: {row.addressJibun}</div>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-stone-400">{row.region || '-'}</span>
+                )}
+              </td>
               <td className="px-3 py-2 text-stone-600 min-w-[180px]">
                 {row.interests.map(interestLabel).join(' · ')}
               </td>

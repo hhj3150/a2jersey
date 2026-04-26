@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import { ZodError } from 'zod'
-import { registerSchema } from '../schemas.js'
+import { registerSchema, deriveRegion } from '../schemas.js'
 import { db } from '../db.js'
 
 const router = Router()
@@ -16,9 +16,11 @@ const registerLimiter = rateLimit({
 
 const insertLead = db.prepare(`
   INSERT INTO leads
-    (name, phone, region, interests, sms_consent, privacy_consent, ref, user_agent, ip)
+    (name, phone, region, interests, sms_consent, privacy_consent, ref, user_agent, ip,
+     postcode, address_road, address_jibun, address_detail)
   VALUES
-    (@name, @phone, @region, @interests, @sms_consent, @privacy_consent, @ref, @user_agent, @ip)
+    (@name, @phone, @region, @interests, @sms_consent, @privacy_consent, @ref, @user_agent, @ip,
+     @postcode, @address_road, @address_jibun, @address_detail)
 `)
 
 const findByPhone = db.prepare<[string]>('SELECT id FROM leads WHERE phone = ?')
@@ -42,16 +44,22 @@ router.post('/register', registerLimiter, (req: Request, res: Response) => {
       null
     const userAgent = req.headers['user-agent'] || null
 
+    const region = parsed.region?.trim() || deriveRegion(parsed.addressRoad)
+
     const result = insertLead.run({
       name: parsed.name,
       phone: parsed.phone,
-      region: parsed.region,
+      region,
       interests: JSON.stringify(parsed.interests),
       sms_consent: parsed.smsConsent ? 1 : 0,
       privacy_consent: 1,
       ref: parsed.ref,
       user_agent: userAgent,
       ip,
+      postcode: parsed.postcode,
+      address_road: parsed.addressRoad,
+      address_jibun: parsed.addressJibun,
+      address_detail: parsed.addressDetail,
     })
 
     return res.status(201).json({

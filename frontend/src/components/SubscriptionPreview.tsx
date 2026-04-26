@@ -5,11 +5,11 @@ interface PreviewItem {
 }
 
 const ITEMS: PreviewItem[] = [
-  { name: '750ml',              caption: '매일 마시는 정기구독',     status: '6월 1일 오픈' },
-  { name: '180ml',              caption: '어린이용',                 status: '6월 1일 오픈' },
-  { name: '500ml 플래인 요거트', caption: 'A2 저지유 베이스',         status: '6월 1일 오픈' },
-  { name: '500ml 단백 요거트',   caption: 'A2 저지유 베이스',         status: '6월 1일 오픈' },
-  { name: '카페',                caption: '소프트아이스크림 · 방문',  status: '안성팜랜드 內' },
+  { name: '750ml',              caption: '매일 마시는 정기구독',          status: '6월 1일 오픈' },
+  { name: '180ml',              caption: '어린이용',                      status: '6월 1일 오픈' },
+  { name: '500ml 플래인 요거트', caption: 'A2 저지(Jersey cow) 베이스',    status: '6월 1일 오픈' },
+  { name: '500ml 단백 요거트',   caption: 'A2 저지(Jersey cow) 베이스',    status: '6월 1일 오픈' },
+  { name: '카페',                caption: '소프트아이스크림 · 방문',       status: '안성팜랜드 內' },
 ]
 
 interface SubscriptionPreviewProps {
@@ -25,7 +25,7 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
           준비 중인 라인업
         </h2>
         <p className="mt-3 text-sm text-mute text-center max-w-reading mx-auto">
-          국내산 A2 저지 우유를 찾는 소비자를 위해 송영신목장은
+          국내산 A2 저지(Jersey cow) 우유를 찾는 소비자를 위해 송영신목장은
           {' '}{formatDate(launchDate)}부터 정기구독 서비스를 준비하고 있습니다.
         </p>
 

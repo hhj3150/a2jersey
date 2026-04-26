@@ -31,12 +31,12 @@ const svg = `
           fill="${SOIL}" letter-spacing="6">MADE BY SOIL</text>
   </g>
 
-  <g transform="translate(80, 200)">
+  <g transform="translate(80, 210)">
     <text font-family="Pretendard, system-ui, sans-serif" font-size="78" font-weight="800"
-          fill="${INK}" letter-spacing="-2">국내산 A2 저지 우유</text>
-    <text x="0" y="105" font-family="Pretendard, system-ui, sans-serif" font-size="78" font-weight="800"
+          fill="${INK}" letter-spacing="-2">국내산 A2 Jersey 우유</text>
+    <text x="0" y="90" font-family="Pretendard, system-ui, sans-serif" font-size="76" font-weight="800"
           fill="${SOIL_DARK}" letter-spacing="-2">송영신목장</text>
-    <text x="0" y="180" font-family="Pretendard, system-ui, sans-serif" font-size="56" font-weight="700"
+    <text x="0" y="160" font-family="Pretendard, system-ui, sans-serif" font-size="46" font-weight="700"
           fill="${INK}" letter-spacing="-1">A2 Jersey Hay Milk</text>
   </g>
 
@@ -48,17 +48,7 @@ const svg = `
 
   <g transform="translate(420, 533)">
     <text font-family="Pretendard, system-ui, sans-serif" font-size="20" font-weight="500"
-          fill="${MUTE}">경기도 안성 · 목장형 유가공</text>
-  </g>
-
-  <g transform="translate(${W - 240}, 110)">
-    <circle cx="80" cy="80" r="80" fill="${SOIL}" opacity="0.10"/>
-    <text x="80" y="64" font-family="Pretendard, system-ui, sans-serif" font-size="16" font-weight="600"
-          fill="${SOIL_DARK}" text-anchor="middle" letter-spacing="2">A2 PROTEIN</text>
-    <text x="80" y="94" font-family="Pretendard, system-ui, sans-serif" font-size="46" font-weight="800"
-          fill="${SOIL_DARK}" text-anchor="middle">JERSEY</text>
-    <text x="80" y="120" font-family="Pretendard, system-ui, sans-serif" font-size="16" font-weight="600"
-          fill="${SOIL_DARK}" text-anchor="middle" letter-spacing="2">HAY MILK</text>
+          fill="${MUTE}">경기도 안성 · 저지방 우유와 다른 품종</text>
   </g>
 </svg>
 `.trim()

@@ -20,10 +20,22 @@ export async function postRegister(
   ref?: string,
 ): Promise<RegisterResult> {
   try {
+    const payload = {
+      name: values.name,
+      phone: values.phone,
+      postcode: values.postcode,
+      addressRoad: values.addressRoad,
+      addressJibun: values.addressJibun || undefined,
+      addressDetail: values.addressDetail || undefined,
+      interests: values.interests,
+      smsConsent: values.smsConsent,
+      privacyConsent: values.privacyConsent,
+      ref: ref || 'direct',
+    }
     const res = await fetch(`${env.apiUrl}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...values, ref: ref || 'direct' }),
+      body: JSON.stringify(payload),
     })
 
     const data = (await res.json()) as RegisterResult

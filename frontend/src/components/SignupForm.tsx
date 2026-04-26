@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   registerFormSchema,
@@ -7,6 +7,7 @@ import {
   type RegisterFormValues,
 } from '../lib/schemas'
 import { postRegister, getRefFromUrl } from '../lib/api'
+import { AddressFinder, type AddressValue } from './AddressFinder'
 
 function SuccessPanel() {
   return (
@@ -59,19 +60,33 @@ export function SignupForm() {
     register,
     handleSubmit,
     setError,
+    control,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       name: '',
       phone: '',
-      region: '',
+      postcode: '',
+      addressRoad: '',
+      addressJibun: '',
+      addressDetail: '',
       interests: [],
       smsConsent: false,
       privacyConsent: false as unknown as true,
     },
     mode: 'onBlur',
   })
+
+  const postcode = watch('postcode')
+  const addressRoad = watch('addressRoad')
+  const addressJibun = watch('addressJibun')
+  const currentAddress: AddressValue | null =
+    postcode && addressRoad
+      ? { postcode, roadAddress: addressRoad, jibunAddress: addressJibun || '' }
+      : null
 
   const onSubmit = handleSubmit(async (values) => {
     setState({ kind: 'submitting' })
@@ -154,16 +169,35 @@ export function SignupForm() {
           </div>
 
           <div>
-            <label htmlFor="region" className="field-label">거주 지역</label>
-            <input
-              id="region"
-              type="text"
-              autoComplete="address-level1"
-              placeholder="예: 경기도 안성시 / 서울 강남구"
-              className="field-input"
-              {...register('region')}
+            <label className="field-label">주소</label>
+            <Controller
+              name="postcode"
+              control={control}
+              render={() => (
+                <AddressFinder
+                  value={currentAddress}
+                  onChange={(v) => {
+                    setValue('postcode', v.postcode, { shouldValidate: true })
+                    setValue('addressRoad', v.roadAddress, { shouldValidate: true })
+                    setValue('addressJibun', v.jibunAddress, { shouldValidate: false })
+                  }}
+                  error={errors.postcode?.message || errors.addressRoad?.message}
+                />
+              )}
             />
-            {errors.region && <p className="field-error">{errors.region.message}</p>}
+            <input type="hidden" {...register('addressRoad')} />
+            <input type="hidden" {...register('addressJibun')} />
+            <input
+              type="text"
+              autoComplete="address-line2"
+              placeholder="상세주소 (동/호수, 건물명 등)"
+              className="field-input mt-2"
+              maxLength={100}
+              {...register('addressDetail')}
+            />
+            {errors.addressDetail && (
+              <p className="field-error">{errors.addressDetail.message}</p>
+            )}
           </div>
 
           <fieldset>
@@ -200,7 +234,7 @@ export function SignupForm() {
                 <span className="font-semibold text-soil-dark">[필수]</span> 개인정보 수집·이용에 동의합니다.
                 <br />
                 <span className="text-xs text-mute">
-                  수집 항목: 이름, 휴대폰 번호, 거주 지역, 관심 상품 ·
+                  수집 항목: 이름, 휴대폰 번호, 우편번호·주소·상세주소, 관심 상품 ·
                   보유 기간: 정기구독 오픈 안내 발송 후 1년 ·
                   거부 시 사전회원 등록이 어렵습니다.
                 </span>

@@ -33,6 +33,24 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_leads_status     ON leads(status);
 `)
 
+const columnExists = (table: string, column: string): boolean => {
+  const rows = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>
+  return rows.some((r) => r.name === column)
+}
+
+if (!columnExists('leads', 'postcode')) {
+  db.exec(`ALTER TABLE leads ADD COLUMN postcode TEXT`)
+}
+if (!columnExists('leads', 'address_road')) {
+  db.exec(`ALTER TABLE leads ADD COLUMN address_road TEXT`)
+}
+if (!columnExists('leads', 'address_jibun')) {
+  db.exec(`ALTER TABLE leads ADD COLUMN address_jibun TEXT`)
+}
+if (!columnExists('leads', 'address_detail')) {
+  db.exec(`ALTER TABLE leads ADD COLUMN address_detail TEXT`)
+}
+
 export interface LeadRow {
   id: number
   name: string
@@ -47,4 +65,8 @@ export interface LeadRow {
   status: string
   memo: string | null
   created_at: string
+  postcode: string | null
+  address_road: string | null
+  address_jibun: string | null
+  address_detail: string | null
 }

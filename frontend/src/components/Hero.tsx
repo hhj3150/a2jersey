@@ -16,7 +16,7 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
         <p className="section-eyebrow">Made by Soil</p>
 
         <h1 className="text-[2rem] sm:text-5xl font-bold tracking-tight-kr leading-[1.15] text-ink">
-          국내산 A2 저지 우유,
+          국내산 A2 Jersey 우유,
           <br />
           <span className="text-soil-dark">송영신목장</span>
           <br />
@@ -24,10 +24,13 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
         </h1>
 
         <p className="mt-6 text-base sm:text-lg text-mute leading-relaxed max-w-reading mx-auto">
-          송영신목장은 경기도 안성에서 저지소의 A2 우유를 기반으로
+          송영신목장은 경기도 안성에서 Jersey 소의 A2 우유를 기반으로
           A2 Jersey Hay Milk를 생산합니다.
           <br />
           {launchLabel} 정기구독이 시작됩니다.
+        </p>
+        <p className="mt-2 text-xs text-mute">
+          ※ 'Jersey'는 영국 저지섬 원산의 소 품종이며, 저지방 우유와는 다릅니다.
         </p>
 
         <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-ink/5 px-4 py-1.5 text-xs font-semibold tracking-wide text-soil-dark">

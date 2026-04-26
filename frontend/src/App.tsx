@@ -4,6 +4,7 @@ import { WhyDifferent } from './components/WhyDifferent'
 import { TasteMessage } from './components/TasteMessage'
 import { SubscriptionPreview } from './components/SubscriptionPreview'
 import { SignupForm } from './components/SignupForm'
+import { ShareSection } from './components/ShareSection'
 import { FAQ } from './components/FAQ'
 import { Footer } from './components/Footer'
 import { env } from './env'
@@ -21,6 +22,7 @@ function App() {
       <TasteMessage />
       <SubscriptionPreview launchDate={env.launchDate} />
       <SignupForm />
+      <ShareSection />
       <FAQ />
       <Footer homepageUrl={env.brandHomepage} />
     </main>
