@@ -25,7 +25,9 @@ const formatDate = (iso: string): string => {
 export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
   const [tab, setTab] = useState<'compose' | 'history'>('compose')
 
-  const [message, setMessage] = useState('[송영신목장] 6월 1일 A2 저지 우유 정기구독이 오픈됩니다. 사전회원께 가장 먼저 안내드립니다.')
+  const [message, setMessage] = useState(
+    '[송영신목장] 6월 1일 A2 저지 우유 정기구독이 오픈됩니다.\n네이버 스마트스토어에서 신청해 주세요.\n▶ https://smartstore.naver.com/a2milk_hay',
+  )
   const [refFilter, setRefFilter] = useState(defaultRefFilter ?? '')
   const [smsConsentOnly, setSmsConsentOnly] = useState(true)
   const [testNumber, setTestNumber] = useState('')
