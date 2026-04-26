@@ -1,0 +1,91 @@
+name: DB Daily Backup
+
+on:
+  schedule:
+    # KST 03:00 = UTC 18:00 (전일)
+    - cron: '0 18 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Compute timestamp
+        id: ts
+        run: |
+          echo "date=$(date -u '+%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+          echo "stamp=$(date -u '+%Y-%m-%dT%H-%M-%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch backup from API
+        env:
+          ADMIN_USER: ${{ secrets.ADMIN_USER }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          API_BASE: ${{ secrets.API_BASE }}
+        run: |
+          set -euo pipefail
+          : "${ADMIN_USER:?ADMIN_USER secret is required}"
+          : "${ADMIN_PASSWORD:?ADMIN_PASSWORD secret is required}"
+          : "${API_BASE:?API_BASE secret is required (e.g. https://a2jersey-api-production.up.railway.app)}"
+          mkdir -p backup
+          STATUS=$(curl -sS -o backup/leads.db -w '%{http_code}' \
+            -u "$ADMIN_USER:$ADMIN_PASSWORD" \
+            "$API_BASE/api/admin/backup")
+          if [ "$STATUS" != "200" ]; then
+            echo "Backup endpoint returned HTTP $STATUS"
+            head -c 500 backup/leads.db || true
+            exit 1
+          fi
+          SIZE=$(wc -c < backup/leads.db)
+          echo "Backup size: $SIZE bytes"
+          if [ "$SIZE" -lt 1024 ]; then
+            echo "Backup file is suspiciously small (<1KB)"
+            exit 1
+          fi
+          # SQLite header check: first 16 bytes = "SQLite format 3\0"
+          head -c 15 backup/leads.db | grep -q 'SQLite format 3' || {
+            echo "Backup is not a valid SQLite file"
+            exit 1
+          }
+
+      - name: Compress backup
+        run: |
+          cd backup
+          gzip -9 leads.db
+          mv leads.db.gz "a2jersey-leads-${{ steps.ts.outputs.stamp }}.db.gz"
+          ls -lh
+
+      - name: Create release with backup asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="db-backup-${{ steps.ts.outputs.date }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" backup/*.db.gz --clobber
+          else
+            gh release create "$TAG" backup/*.db.gz \
+              --title "DB backup ${{ steps.ts.outputs.date }}" \
+              --notes "Automated daily SQLite backup of a2jersey leads DB."
+          fi
+
+      - name: Prune old backups (keep 30 days)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          CUTOFF=$(date -u -d '30 days ago' '+%Y-%m-%d' 2>/dev/null || date -u -v-30d '+%Y-%m-%d')
+          gh release list --limit 200 --json tagName,createdAt \
+            --jq ".[] | select(.tagName | startswith(\"db-backup-\")) | select(.tagName < \"db-backup-$CUTOFF\") | .tagName" \
+            | while read -r tag; do
+              [ -z "$tag" ] && continue
+              echo "Deleting old backup: $tag"
+              gh release delete "$tag" --yes --cleanup-tag || true
+            done
