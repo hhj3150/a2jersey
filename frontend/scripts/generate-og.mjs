@@ -33,7 +33,7 @@ const svg = `
 
   <g transform="translate(80, 210)">
     <text font-family="Pretendard, system-ui, sans-serif" font-size="78" font-weight="800"
-          fill="${INK}" letter-spacing="-2">국내산 A2 Jersey 우유</text>
+          fill="${INK}" letter-spacing="-2">국내산 A2 저지 우유</text>
     <text x="0" y="90" font-family="Pretendard, system-ui, sans-serif" font-size="76" font-weight="800"
           fill="${SOIL_DARK}" letter-spacing="-2">송영신목장</text>
     <text x="0" y="160" font-family="Pretendard, system-ui, sans-serif" font-size="46" font-weight="700"
