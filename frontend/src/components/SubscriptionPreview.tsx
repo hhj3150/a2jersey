@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { SoftServeModal } from './SoftServeModal'
+import { ComingSoonNotice } from './ComingSoonNotice'
+import { computeDDay } from '../lib/dday'
+import { env } from '../env'
 
 interface PreviewItem {
   name: string
@@ -26,6 +29,22 @@ interface SubscriptionPreviewProps {
 
 export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
   const [softOpen, setSoftOpen] = useState(false)
+  const [noticeOpen, setNoticeOpen] = useState(false)
+  const dday = computeDDay(launchDate)
+  const isLive = dday.phase === 'live'
+  const launchLabel = formatLaunchShort(launchDate)
+
+  const handleSubscribeClick = () => {
+    if (isLive) {
+      window.open(env.smartstoreUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      setNoticeOpen(true)
+    }
+  }
+
+  const scrollToSignup = () => {
+    document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const renderRow = (it: PreviewItem) => (
     <>
@@ -104,11 +123,41 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
             </li>
           ))}
         </ul>
+
+        <div className="mt-8 text-center">
+          <button
+            type="button"
+            onClick={handleSubscribeClick}
+            className="btn-primary w-full sm:w-auto sm:px-10"
+            aria-haspopup={isLive ? undefined : 'dialog'}
+          >
+            {isLive ? '정기구독 신청하기' : `정기구독 신청하기 · ${launchLabel} 오픈`}
+            <span className="ml-1.5" aria-hidden>{isLive ? '→' : '↗'}</span>
+          </button>
+          <p className="mt-2.5 text-[11px] text-mute">
+            {isLive
+              ? '네이버 스마트스토어로 이동합니다'
+              : `${launchLabel}부터 네이버 스마트스토어에서 신청 가능`}
+          </p>
+        </div>
       </div>
 
       <SoftServeModal open={softOpen} onClose={() => setSoftOpen(false)} />
+      <ComingSoonNotice
+        open={noticeOpen}
+        onClose={() => setNoticeOpen(false)}
+        launchLabel={launchLabel}
+        smartstoreUrl={env.smartstoreUrl}
+        onSignupClick={scrollToSignup}
+      />
     </section>
   )
+}
+
+function formatLaunchShort(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
+  if (!m) return iso
+  return `${Number(m[2])}월 ${Number(m[3])}일`
 }
 
 function formatDate(iso: string): string {
