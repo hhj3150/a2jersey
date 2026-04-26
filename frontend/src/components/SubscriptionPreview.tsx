@@ -1,7 +1,11 @@
+import { useState } from 'react'
+import { SoftServeModal } from './SoftServeModal'
+
 interface PreviewItem {
   name: string
   price?: string
   status: string
+  action?: 'softserve'
 }
 
 const ITEMS: PreviewItem[] = [
@@ -9,7 +13,8 @@ const ITEMS: PreviewItem[] = [
   { name: '180ml A2 저지 헤이밀크',     price: '3,200원',  status: '6월 1일 오픈' },
   { name: '500ml A2 저지 플래인 요거트', price: '10,000원', status: '6월 1일 오픈' },
   { name: '500ml A2 저지 프로틴 요거트', price: '10,000원', status: '6월 1일 오픈' },
-  { name: '소프트아이스크림 · 카페 방문',                  status: '안성팜랜드 內' },
+  { name: '소프트아이스크림 · 카페 방문',                  status: '안성팜랜드 內',
+    action: 'softserve' },
 ]
 
 const POLICY_NOTES: string[] = [
@@ -23,6 +28,22 @@ interface SubscriptionPreviewProps {
 }
 
 export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
+  const [softOpen, setSoftOpen] = useState(false)
+
+  const renderRow = (it: PreviewItem) => (
+    <>
+      <p className="text-base font-semibold text-ink text-left">{it.name}</p>
+      <div className="flex flex-col items-end whitespace-nowrap">
+        {it.price && (
+          <span className="text-sm font-semibold text-ink">{it.price}</span>
+        )}
+        <span className="text-xs font-medium text-soil-dark mt-0.5">
+          {it.status}
+        </span>
+      </div>
+    </>
+  )
+
   return (
     <section className="section" aria-labelledby="subscription-preview-title">
       <div className="container-app">
@@ -37,16 +58,22 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-2">
           {ITEMS.map((it) => (
-            <li key={it.name} className="card flex items-center justify-between gap-3">
-              <p className="text-base font-semibold text-ink">{it.name}</p>
-              <div className="flex flex-col items-end whitespace-nowrap">
-                {it.price && (
-                  <span className="text-sm font-semibold text-ink">{it.price}</span>
-                )}
-                <span className="text-xs font-medium text-soil-dark mt-0.5">
-                  {it.status}
-                </span>
-              </div>
+            <li key={it.name}>
+              {it.action === 'softserve' ? (
+                <button
+                  type="button"
+                  onClick={() => setSoftOpen(true)}
+                  className="card flex w-full items-center justify-between gap-3 text-left transition hover:bg-cream-dark focus:outline-none focus:ring-2 focus:ring-soil-dark/40"
+                  aria-haspopup="dialog"
+                >
+                  {renderRow(it)}
+                  <span className="ml-1 text-xs text-mute" aria-hidden>›</span>
+                </button>
+              ) : (
+                <div className="card flex items-center justify-between gap-3">
+                  {renderRow(it)}
+                </div>
+              )}
             </li>
           ))}
         </ul>
@@ -60,6 +87,8 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
           ))}
         </ul>
       </div>
+
+      <SoftServeModal open={softOpen} onClose={() => setSoftOpen(false)} />
     </section>
   )
 }
