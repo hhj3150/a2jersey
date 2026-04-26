@@ -38,23 +38,29 @@ export function JerseyDetailModal({ detail, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="jersey-modal-title"
-      className="fixed inset-0 z-50 overflow-y-auto bg-ink/70 px-4 py-6 sm:py-12"
-      onClick={onClose}
-      style={
-        detail.backdrop
-          ? {
-              backgroundImage: `linear-gradient(rgba(15,15,15,0.55), rgba(15,15,15,0.65)), url(${detail.backdrop})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundAttachment: 'fixed',
-            }
-          : undefined
-      }
+      className="fixed inset-0 z-50"
     >
+      {detail.backdrop ? (
+        <>
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${detail.backdrop})` }}
+          />
+          <div aria-hidden className="absolute inset-0 bg-ink/65" />
+        </>
+      ) : (
+        <div aria-hidden className="absolute inset-0 bg-ink/70" />
+      )}
+
       <div
-        className="relative mx-auto w-full max-w-md rounded-2xl bg-cream shadow-2xl ring-1 ring-white/10"
-        onClick={(e) => e.stopPropagation()}
+        className="relative h-full overflow-y-auto px-4 py-6 sm:py-12"
+        onClick={onClose}
       >
+        <div
+          className="relative mx-auto w-full max-w-md rounded-2xl bg-cream shadow-2xl ring-1 ring-white/10"
+          onClick={(e) => e.stopPropagation()}
+        >
         <button
           type="button"
           onClick={onClose}
@@ -93,6 +99,7 @@ export function JerseyDetailModal({ detail, onClose }: Props) {
               </span>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </div>
