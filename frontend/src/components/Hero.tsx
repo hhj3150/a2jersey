@@ -14,11 +14,13 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
     <section className="section pt-16 sm:pt-24">
       <div className="container-app text-center">
         <img
-          src="/logo.svg"
+          src="/logo-512.png"
           alt="송영신목장 — A2 저지"
-          className="mx-auto block w-[160px] sm:w-[200px] h-auto"
-          width="200"
-          height="162"
+          className="mx-auto block w-[180px] sm:w-[220px] h-auto"
+          width="512"
+          height="414"
+          decoding="async"
+          fetchPriority="high"
         />
 
         <h1 className="mt-5 text-[2rem] sm:text-5xl font-bold tracking-tight-kr leading-[1.15] text-ink">

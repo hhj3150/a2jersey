@@ -33,6 +33,7 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
   const [testNumber, setTestNumber] = useState('')
   const [bypassNightCheck, setBypassNightCheck] = useState(false)
   const [forceDryRun, setForceDryRun] = useState(false)
+  const [mode, setMode] = useState<'sms' | 'alimtalk'>('sms')
 
   const [preview, setPreview] = useState<BroadcastPreview | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
@@ -97,6 +98,7 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
       testNumber: testNumber || undefined,
       dryRun: forceDryRun || undefined,
       bypassNightCheck,
+      mode,
     })
     setSubmitting(false)
     if ('historyId' in res) {
@@ -162,6 +164,33 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
                 🌙 야간 시간(KST 21:00 ~ 08:00) — 마케팅 메시지 발송 차단. 긴급 시 야간 발송 우회 체크.
               </div>
             )}
+
+            <div>
+              <label className="text-sm font-medium text-stone-700 block mb-1">발송 채널</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMode('sms')}
+                  className={`flex-1 px-3 py-2 rounded-md text-sm border ${mode === 'sms' ? 'bg-stone-900 text-white border-stone-900' : 'border-stone-300 text-stone-700 bg-white'}`}
+                >
+                  SMS / LMS
+                </button>
+                <button
+                  type="button"
+                  onClick={() => preview?.alimtalkConfigured && setMode('alimtalk')}
+                  disabled={!preview?.alimtalkConfigured}
+                  className={`flex-1 px-3 py-2 rounded-md text-sm border ${mode === 'alimtalk' ? 'bg-yellow-400 text-stone-900 border-yellow-400' : 'border-stone-300 text-stone-700 bg-white'} disabled:opacity-40 disabled:cursor-not-allowed`}
+                  title={preview?.alimtalkConfigured ? '카카오 알림톡 발송' : '카카오 채널 + 템플릿 등록 필요 (KAKAO_PFID, KAKAO_TEMPLATE_ID)'}
+                >
+                  💬 카카오 알림톡 {!preview?.alimtalkConfigured && '(미설정)'}
+                </button>
+              </div>
+              {mode === 'alimtalk' && (
+                <p className="mt-1 text-xs text-stone-500">
+                  알림톡: 메시지 본문이 사전 승인된 템플릿과 정확히 일치해야 합니다. 카톡 미수신·차단 시 LMS로 자동 폴백.
+                </p>
+              )}
+            </div>
 
             <div>
               <label className="text-sm font-medium text-stone-700 block mb-1">메시지 본문</label>

@@ -135,6 +135,7 @@ export interface BroadcastPreview {
   targetCount: number
   daytimeKST: boolean
   solapiConfigured: boolean
+  alimtalkConfigured: boolean
   serverDryRun: boolean
 }
 
@@ -180,6 +181,7 @@ export interface BroadcastInput {
   bypassNightCheck?: boolean
   skipAdPrefix?: boolean
   skipOptOut?: boolean
+  mode?: 'sms' | 'alimtalk'
 }
 
 export async function sendBroadcast(

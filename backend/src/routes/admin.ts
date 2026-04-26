@@ -6,9 +6,11 @@ import { requireAdmin } from '../middleware/admin.js'
 import { interestLabels, type Interest } from '../schemas.js'
 import {
   sendBulkSms,
+  sendBulkAlimtalk,
   isWithinDaytimeKST,
   composeMarketingText,
   isSolapiConfigured,
+  isAlimtalkConfigured,
   type SolapiConfig,
 } from '../lib/solapi.js'
 
@@ -225,12 +227,15 @@ const broadcastSchema = z.object({
   bypassNightCheck: z.boolean().optional().default(false),
   skipAdPrefix: z.boolean().optional().default(false),
   skipOptOut: z.boolean().optional().default(false),
+  mode: z.enum(['sms', 'alimtalk']).optional().default('sms'),
 })
 
 const solapiCfg = (): SolapiConfig => ({
   apiKey: process.env.SOLAPI_API_KEY,
   apiSecret: process.env.SOLAPI_API_SECRET,
   from: process.env.SOLAPI_FROM_NUMBER,
+  kakaoPfId: process.env.KAKAO_PFID,
+  kakaoTemplateId: process.env.KAKAO_TEMPLATE_ID,
 })
 
 const insertBroadcast = db.prepare(`
@@ -259,6 +264,7 @@ router.get('/broadcast/preview', (req: Request, res: Response) => {
     targetCount: row.c,
     daytimeKST: isWithinDaytimeKST(),
     solapiConfigured: isSolapiConfigured(solapiCfg()),
+    alimtalkConfigured: isAlimtalkConfigured(solapiCfg()),
     serverDryRun: process.env.BROADCAST_DRY_RUN === 'true',
   })
 })
@@ -324,7 +330,10 @@ router.post('/broadcast', async (req: Request, res: Response) => {
     sent = messages.length
     cost = undefined
   } else {
-    const result = await sendBulkSms(cfg, messages)
+    const useAlimtalk = parsed.mode === 'alimtalk' && isAlimtalkConfigured(cfg)
+    const result = useAlimtalk
+      ? await sendBulkAlimtalk(cfg, messages, 'LMS')
+      : await sendBulkSms(cfg, messages)
     sent = result.registered
     failed = result.failed
     cost = result.cost
