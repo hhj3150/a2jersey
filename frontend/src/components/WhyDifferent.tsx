@@ -13,6 +13,7 @@ const CARDS: Card[] = [
     kr: '희소함',
     teaser: '세계 젖소의 오직 5%, 한국에는 0.1%.',
     image: '/jersey-rare.jpg',
+    backdrop: '/jersey-cow-real.jpg',
     tags: ['Jersey', 'Rare', 'Precious'],
     body: [
       '영국 저지섬에서 700년, 한국 송영신목장에서 18년. 귀하기에 더 정성스러운 우유.',
