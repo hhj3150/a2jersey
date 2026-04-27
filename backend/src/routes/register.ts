@@ -38,10 +38,7 @@ router.post('/register', registerLimiter, (req: Request, res: Response) => {
       })
     }
 
-    const ip =
-      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-      req.socket.remoteAddress ||
-      null
+    const ip = req.ip || req.socket.remoteAddress || null
     const userAgent = req.headers['user-agent'] || null
 
     const region = parsed.region?.trim() || deriveRegion(parsed.addressRoad)
