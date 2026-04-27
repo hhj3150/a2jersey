@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export type CraftSlug = 'haymilk' | 'pasteurization' | 'taste'
+export type CraftSlug = 'haymilk' | 'pasteurization' | 'taste' | 'terpene'
 
 interface Props {
   slug: CraftSlug | null
@@ -24,7 +24,7 @@ export function CraftDetailModal({ slug, onClose }: Props) {
 
   if (!slug) return null
 
-  const dark = slug === 'haymilk' || slug === 'pasteurization'
+  const dark = slug === 'haymilk' || slug === 'pasteurization' || slug === 'terpene'
 
   return (
     <div
@@ -59,6 +59,7 @@ export function CraftDetailModal({ slug, onClose }: Props) {
           <div className="px-6 pb-7 pt-9">
             {slug === 'haymilk' && <HayMilkContent />}
             {slug === 'pasteurization' && <PasteurizationContent />}
+            {slug === 'terpene' && <TerpeneContent />}
             {slug === 'taste' && (
               <>
                 <TasteContent />
@@ -152,6 +153,58 @@ function PasteurizationContent() {
         <div className="col-span-2">
           <dt className="text-[11px] uppercase tracking-[0.2em] text-gold">Shelf Sense</dt>
           <dd className="mt-1 text-base font-semibold">Fresh, Short</dd>
+        </div>
+      </dl>
+    </>
+  )
+}
+
+function TerpeneContent() {
+  return (
+    <>
+      <h2 id="craft-modal-title" className="text-2xl font-semibold tracking-tight-kr">
+        풀과 꽃이 우유에 남기는 향.
+      </h2>
+      <p className="mt-2 text-sm text-gold italic">
+        Terpene · 식물의 방향 성분이 우유로 이행되는 현상
+      </p>
+
+      <p className="mt-6 text-sm leading-7 text-white/85">
+        테르펜은 풀·꽃·허브가 자기 자신을 위해 만드는 휘발성 방향 화합물입니다.
+        라벤더의 <span className="text-gold">리날룰</span>, 솔잎의 <span className="text-gold">피넨</span>,
+        박하의 <span className="text-gold">멘톨</span> — 모두 같은 가족입니다.
+      </p>
+      <p className="mt-4 text-sm leading-7 text-white/85">
+        사일리지(발효사료)는 발효 과정에서 이 섬세한 분자들이 대부분 분해됩니다.
+        반면 잘 마른 건초와 청초만으로 키운 헤이밀크의 젖소는, 다양한 풀의
+        테르펜 분자들을 그대로 우유 지방에 옮깁니다.
+      </p>
+      <p className="mt-4 text-sm leading-7 text-white/85">
+        그래서 송영신의 우유에서는 들풀·건초·아주 옅은 꽃향이 코끝에 잠시 머뭅니다.
+        향료처럼 진하지 않고, 절제되어 있고, 깨끗합니다. 그것이 헤이밀크가 시판
+        우유와 향에서부터 다른 과학적 근거입니다.
+      </p>
+
+      <hr className="mt-8 border-white/15" />
+
+      <dl className="mt-6 grid grid-cols-2 gap-y-5 gap-x-5 text-sm">
+        <div>
+          <dt className="text-[11px] uppercase tracking-[0.2em] text-gold">Aroma Profile</dt>
+          <dd className="mt-1 text-base font-semibold">
+            Grass · Hay <span className="text-white/60 italic font-normal text-sm">· Faint Floral</span>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[11px] uppercase tracking-[0.2em] text-gold">Source</dt>
+          <dd className="mt-1 text-base font-semibold">
+            Pasture &amp; <span className="text-white/60 italic font-normal text-sm">Cured Hay</span>
+          </dd>
+        </div>
+        <div className="col-span-2">
+          <dt className="text-[11px] uppercase tracking-[0.2em] text-gold">Reference</dt>
+          <dd className="mt-1 text-base font-semibold">
+            EU Heumilch <span className="text-white/60 italic font-normal text-sm">Sensory Spec.</span>
+          </dd>
         </div>
       </dl>
     </>

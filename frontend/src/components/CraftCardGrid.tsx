@@ -31,6 +31,13 @@ const CARDS: Card[] = [
     kr: '물보다 가벼운 목넘김',
     teaser: '가볍지만 깊은 저지의 여운 + 음용 가이드.',
   },
+  {
+    slug: 'terpene',
+    no: 'No 09',
+    eng: 'Terpene',
+    kr: '풀과 꽃이 우유에 남기는 향',
+    teaser: '건초의 식물 방향 성분이 그대로 우유 풍미가 됩니다.',
+  },
 ]
 
 export function CraftCardGrid() {
