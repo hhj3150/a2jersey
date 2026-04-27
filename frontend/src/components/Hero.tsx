@@ -1,5 +1,4 @@
-import { useMemo } from 'react'
-import { computeDDay } from '../lib/dday'
+import { useDDay } from '../lib/useDDay'
 
 interface HeroProps {
   onCtaClick: () => void
@@ -7,7 +6,7 @@ interface HeroProps {
 }
 
 export function Hero({ onCtaClick, launchDate }: HeroProps) {
-  const dday = useMemo(() => computeDDay(launchDate), [launchDate])
+  const dday = useDDay(launchDate)
   const launchLabel = formatLaunchLabel(launchDate)
 
   return (
@@ -42,7 +41,11 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
 
         <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-ink/5 px-4 py-1.5 text-xs font-semibold tracking-wide text-soil-dark">
           <span className="h-1.5 w-1.5 rounded-full bg-soil animate-pulse" aria-hidden />
-          {dday.phase === 'live' ? '정기구독 오픈 중' : `정기구독 오픈까지 ${dday.label}`}
+          {dday.phase === 'pre'
+            ? `정기구독 오픈까지 ${dday.label}`
+            : dday.phase === 'today'
+              ? '오늘 정기구독 오픈'
+              : '정기구독 오픈 중'}
         </div>
 
         <button
@@ -50,7 +53,7 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
           onClick={onCtaClick}
           className="btn-primary mt-6 w-full sm:w-auto"
         >
-          {dday.phase === 'live' ? '사전회원 등록하기' : `${launchLabel} 오픈 알림 받기`}
+          {dday.phase === 'pre' ? `${launchLabel} 오픈 알림 받기` : '사전회원 등록하기'}
         </button>
       </div>
     </section>

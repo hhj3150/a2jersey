@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ComingSoonNotice } from './ComingSoonNotice'
-import { computeDDay } from '../lib/dday'
+import { useDDay } from '../lib/useDDay'
 import { env } from '../env'
 
 interface PreviewItem {
@@ -28,7 +28,7 @@ interface SubscriptionPreviewProps {
 
 export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
   const [noticeOpen, setNoticeOpen] = useState(false)
-  const dday = computeDDay(launchDate)
+  const dday = useDDay(launchDate)
   const isLive = dday.phase === 'live'
   const launchLabel = formatLaunchShort(launchDate)
 
