@@ -11,6 +11,8 @@ import {
   composeMarketingText,
   isSolapiConfigured,
   isAlimtalkConfigured,
+  isOptOutNumberConfigured,
+  getOptOutNumber,
   type SolapiConfig,
 } from '../lib/solapi.js'
 
@@ -324,6 +326,8 @@ router.get('/broadcast/preview', (req: Request, res: Response) => {
     daytimeKST: isWithinDaytimeKST(),
     solapiConfigured: isSolapiConfigured(solapiCfg()),
     alimtalkConfigured: isAlimtalkConfigured(solapiCfg()),
+    optOutNumber: getOptOutNumber(),
+    optOutConfigured: isOptOutNumberConfigured(),
     serverDryRun: process.env.BROADCAST_DRY_RUN === 'true',
   })
 })
@@ -350,6 +354,17 @@ router.post('/broadcast', async (req: Request, res: Response) => {
   const cfg = solapiCfg()
   const serverForcesDryRun = process.env.BROADCAST_DRY_RUN === 'true'
   const dryRun = serverForcesDryRun || parsed.dryRun === true || !isSolapiConfigured(cfg)
+
+  // 080 수신거부 번호 미설정 시: 드라이런이 아니면 실제 발송 차단
+  // (정통망법 §50 위반 방지 — 가짜 080 번호로 광고 발송 시 최대 3000만원 과태료)
+  if (!dryRun && !isOptOutNumberConfigured()) {
+    return res.status(409).json({
+      ok: false,
+      error:
+        'OPT_OUT_NUMBER 환경변수가 설정되지 않았습니다. Solapi 080 부가서비스 신청 후 환경변수에 등록해주세요. (드라이런은 무관하게 사용 가능)',
+      code: 'OPT_OUT_NOT_CONFIGURED',
+    })
+  }
 
   let leads: { phone: string }[] = []
   if (parsed.testNumber) {

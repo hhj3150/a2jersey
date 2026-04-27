@@ -86,7 +86,7 @@ export async function sendBulkSms(
         to: m.to,
         from,
         text: m.text,
-        type: Buffer.byteLength(m.text, 'utf8') > 90 ? 'LMS' : 'SMS',
+        type: detectMessageType(m.text),
       })),
     }
     try {
@@ -284,15 +284,55 @@ export const isWithinDaytimeKST = (now: Date = new Date()): boolean => {
 }
 
 const AD_PREFIX = '(광고)'
-const OPT_OUT_SUFFIX = '\n수신거부 080-080-0808'
+const FALLBACK_OPT_OUT = '080-000-0000' // 미설정 표식 — 실제 발송 전에 반드시 OPT_OUT_NUMBER 설정
+
+export const getOptOutNumber = (): string =>
+  (process.env.OPT_OUT_NUMBER || FALLBACK_OPT_OUT).trim()
+
+export const isOptOutNumberConfigured = (): boolean => {
+  const n = (process.env.OPT_OUT_NUMBER || '').trim()
+  return n.length > 0 && n !== FALLBACK_OPT_OUT
+}
+
+// EUC-KR 기준 바이트 (한국어 1글자 = 2바이트, ASCII = 1바이트).
+// 한국 통신사 SMS/LMS 길이 판정 기준과 일치 → UTF-8 으로 카운트하면 한국어 50% 과대계상되어 LMS 오판정.
+export const eucKrBytes = (s: string): number => {
+  let n = 0
+  for (let i = 0; i < s.length; i++) {
+    const code = s.charCodeAt(i)
+    n += code <= 0x7f ? 1 : 2
+  }
+  return n
+}
+
+const SMS_BYTE_LIMIT = 90
+const LMS_BYTE_LIMIT = 2000
+
+const sliceByEucKrBytes = (s: string, maxBytes: number): string => {
+  let used = 0
+  let end = s.length
+  for (let i = 0; i < s.length; i++) {
+    const w = s.charCodeAt(i) <= 0x7f ? 1 : 2
+    if (used + w > maxBytes) {
+      end = i
+      break
+    }
+    used += w
+  }
+  return s.slice(0, end)
+}
 
 export const composeMarketingText = (
   body: string,
   opts?: { skipAdPrefix?: boolean; skipOptOut?: boolean },
 ): string => {
+  const optOut = `\n수신거부 ${getOptOutNumber()}`
   const parts: string[] = []
   if (!opts?.skipAdPrefix && !body.trim().startsWith(AD_PREFIX)) parts.push(AD_PREFIX)
   parts.push(body.trim())
-  if (!opts?.skipOptOut && !body.includes('수신거부')) parts.push(OPT_OUT_SUFFIX.trim())
-  return parts.join(' ').slice(0, 2000)
+  if (!opts?.skipOptOut && !body.includes('수신거부')) parts.push(optOut.trim())
+  return sliceByEucKrBytes(parts.join(' '), LMS_BYTE_LIMIT)
 }
+
+export const detectMessageType = (text: string): 'SMS' | 'LMS' =>
+  eucKrBytes(text) > SMS_BYTE_LIMIT ? 'LMS' : 'SMS'

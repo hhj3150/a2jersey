@@ -14,7 +14,17 @@ interface Props {
   defaultRefFilter?: string
 }
 
-const byteLength = (s: string): number => new TextEncoder().encode(s).length
+// EUC-KR 기준 바이트 (한국어 1글자 = 2바이트). 통신사 SMS/LMS 길이 판정과 일치.
+// UTF-8 로 카운트하면 한국어 50% 과대계상 → LMS 오판정으로 4배 과금.
+const eucKrBytes = (s: string): number => {
+  let n = 0
+  for (let i = 0; i < s.length; i++) {
+    n += s.charCodeAt(i) <= 0x7f ? 1 : 2
+  }
+  return n
+}
+
+const COST_CONFIRM_THRESHOLD = 50_000
 
 const formatDate = (iso: string): string => {
   const d = new Date(iso.replace(' ', 'T') + 'Z')
@@ -68,25 +78,40 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
   }, [tab, token])
 
   const targetCount = testNumber.trim() ? 1 : preview?.targetCount ?? 0
-  const previewText = `(광고) ${message.trim()}\n수신거부 080-080-0808`
-  const bytes = byteLength(previewText)
-  const isLMS = bytes > 90 || /[^\x00-\x7F]/.test(previewText)
+  const optOutNumber = preview?.optOutNumber ?? '080-000-0000'
+  const previewText = `(광고) ${message.trim()}\n수신거부 ${optOutNumber}`
+  const bytes = eucKrBytes(previewText)
+  const isLMS = bytes > 90
   const unitCost = isLMS ? 40 : 10
   const estimatedCost = targetCount * unitCost
   const nightBlocked = preview ? !preview.daytimeKST && !bypassNightCheck : false
+  const optOutMissing = preview ? !preview.optOutConfigured && !forceDryRun : false
 
   const canSubmit =
     !submitting &&
     message.trim().length > 0 &&
     targetCount > 0 &&
-    !nightBlocked
+    !nightBlocked &&
+    !optOutMissing
 
   const handleSubmit = async () => {
     if (!canSubmit) return
+    const isReal = !forceDryRun
     const confirmText = testNumber.trim()
       ? `테스트 발송: ${testNumber} 1건${forceDryRun ? ' (드라이런)' : ''}`
       : `${targetCount}명에게 ${forceDryRun ? '드라이런 ' : '실제 '}발송합니다. 진행하시겠어요?\n예상 비용: ₩${estimatedCost.toLocaleString()}`
     if (!confirm(confirmText)) return
+
+    // 비용 가드: 실제 발송이 임계값 초과 시 한 번 더 확인
+    if (isReal && estimatedCost >= COST_CONFIRM_THRESHOLD) {
+      const second = window.prompt(
+        `⚠️ 큰 금액입니다. 예상 비용 ₩${estimatedCost.toLocaleString()} (${targetCount.toLocaleString()}명 × ₩${unitCost}).\n계속하려면 정확히 "발송확인" 이라고 입력하세요.`,
+      )
+      if (second?.trim() !== '발송확인') {
+        alert('취소되었습니다.')
+        return
+      }
+    }
 
     setSubmitting(true)
     setSubmitError(null)
@@ -164,6 +189,15 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
                 🌙 야간 시간(KST 21:00 ~ 08:00) — 마케팅 메시지 발송 차단. 긴급 시 야간 발송 우회 체크.
               </div>
             )}
+            {optOutMissing && (
+              <div className="bg-red-50 border border-red-200 text-red-800 rounded p-3 text-sm">
+                🚫 OPT_OUT_NUMBER 환경변수 미설정 — 실제 발송 차단.
+                <br />
+                정통망법 §50 위반 방지를 위해 Solapi 080 부가서비스 신청 후 Railway 환경변수에 등록해주세요.
+                <br />
+                (드라이런 모드는 무관하게 사용 가능합니다)
+              </div>
+            )}
 
             <div>
               <label className="text-sm font-medium text-stone-700 block mb-1">발송 채널</label>
@@ -202,8 +236,8 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
                 placeholder="발송할 메시지를 입력하세요. 자동으로 (광고) prefix와 수신거부 안내가 추가됩니다."
               />
               <div className="flex justify-between text-xs text-stone-500 mt-1">
-                <span>실제 발송 본문에는 (광고) prefix · 수신거부 080-080-0808 자동 추가</span>
-                <span>{bytes} bytes · {isLMS ? 'LMS (₩40)' : 'SMS (₩10)'}</span>
+                <span>실제 발송 본문에는 (광고) prefix · 수신거부 {optOutNumber} 자동 추가</span>
+                <span>{bytes} bytes (EUC-KR) · {isLMS ? 'LMS (₩40)' : 'SMS (₩10)'}</span>
               </div>
               <details className="mt-2 text-xs text-stone-600">
                 <summary className="cursor-pointer">실제 발송 본문 미리보기</summary>

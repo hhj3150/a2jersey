@@ -156,6 +156,8 @@ export interface BroadcastPreview {
   daytimeKST: boolean
   solapiConfigured: boolean
   alimtalkConfigured: boolean
+  optOutNumber: string
+  optOutConfigured: boolean
   serverDryRun: boolean
 }
 
