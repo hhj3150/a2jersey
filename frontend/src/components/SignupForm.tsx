@@ -95,7 +95,11 @@ export function SignupForm() {
 
     if (result.ok) {
       setState({ kind: 'success', id: result.id })
-      window.scrollTo({ top: document.getElementById('signup')?.offsetTop, behavior: 'smooth' })
+      requestAnimationFrame(() => {
+        document
+          .getElementById('signup')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
       return
     }
 
