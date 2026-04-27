@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
 import { db, type LeadRow, type BroadcastRow } from '../db.js'
-import { requireAdmin } from '../middleware/admin.js'
+import { requireAdmin, requireAdminOrBackupToken } from '../middleware/admin.js'
 import { interestLabels, type Interest } from '../schemas.js'
 import {
   sendBulkSms,
@@ -25,7 +25,11 @@ const adminLimiter = rateLimit({
 })
 
 router.use(adminLimiter)
-router.use(requireAdmin)
+// /backup 만 Bearer 토큰 허용, 그 외는 Basic Auth 필수
+router.use((req, res, next) => {
+  if (req.path === '/backup') return requireAdminOrBackupToken(req, res, next)
+  return requireAdmin(req, res, next)
+})
 
 const parsePositiveInt = (raw: unknown, fallback: number, max: number): number => {
   const n = Number(raw)
@@ -67,12 +71,16 @@ router.get('/leads', (req: Request, res: Response) => {
   const search = (typeof req.query.q === 'string' ? req.query.q.trim() : '').slice(0, 100)
   const refFilter = (typeof req.query.ref === 'string' ? req.query.ref.trim() : '').slice(0, 20)
 
+  const escapeLike = (s: string): string => s.replace(/[\\%_]/g, (c) => `\\${c}`)
+
   const where: string[] = []
   const params: Record<string, string> = {}
 
   if (search) {
-    where.push('(name LIKE @q OR phone LIKE @q OR region LIKE @q)')
-    params.q = `%${search}%`
+    where.push(
+      `(name LIKE @q ESCAPE '\\' OR phone LIKE @q ESCAPE '\\' OR region LIKE @q ESCAPE '\\')`,
+    )
+    params.q = `%${escapeLike(search)}%`
   }
   if (refFilter) {
     where.push('ref = @ref')
@@ -118,6 +126,13 @@ const csvEscape = (v: string | number | null | undefined): string => {
   return s
 }
 
+const STATUS_LABEL: Record<string, string> = {
+  new: '신규',
+  contacted: '연락함',
+  converted: '전환',
+  rejected: '거절',
+}
+
 router.get('/export.csv', (_req: Request, res: Response) => {
   const rows = db
     .prepare(`SELECT * FROM leads ORDER BY created_at DESC`)
@@ -160,7 +175,7 @@ router.get('/export.csv', (_req: Request, res: Response) => {
         interests,
         row.sms_consent === 1 ? 'Y' : 'N',
         row.ref,
-        row.status,
+        STATUS_LABEL[row.status] ?? row.status,
         row.memo ?? '',
       ]
         .map(csvEscape)
@@ -192,6 +207,50 @@ router.delete('/leads/:id', (req: Request, res: Response) => {
     return res.status(404).json({ ok: false, error: 'Not found' })
   }
   return res.json({ ok: true, deletedId: id })
+})
+
+const patchLeadSchema = z.object({
+  memo: z.string().trim().max(500).nullable().optional(),
+  status: z.enum(['new', 'contacted', 'converted', 'rejected']).optional(),
+})
+
+const updateMemo = db.prepare<[string | null, number]>(
+  'UPDATE leads SET memo = ? WHERE id = ?',
+)
+const updateStatus = db.prepare<[string, number]>(
+  'UPDATE leads SET status = ? WHERE id = ?',
+)
+
+router.patch('/leads/:id', (req: Request, res: Response) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({ ok: false, error: 'Invalid id' })
+  }
+  let parsed
+  try {
+    parsed = patchLeadSchema.parse(req.body)
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({
+        ok: false,
+        error: '입력값을 확인해주세요',
+        fieldErrors: err.flatten().fieldErrors,
+      })
+    }
+    throw err
+  }
+
+  if (parsed.memo === undefined && parsed.status === undefined) {
+    return res.status(400).json({ ok: false, error: 'memo 또는 status 가 필요합니다' })
+  }
+
+  if (parsed.memo !== undefined) {
+    updateMemo.run(parsed.memo ?? null, id)
+  }
+  if (parsed.status !== undefined) {
+    updateStatus.run(parsed.status, id)
+  }
+  return res.json({ ok: true, updatedId: id })
 })
 
 router.get('/backup', async (_req: Request, res: Response) => {

@@ -49,3 +49,22 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
 
   return next()
 }
+
+// 자동화(GitHub Actions cron 백업 등)용 Bearer 토큰 인증.
+// BACKUP_TOKEN env 미설정 시 503. Bearer 가 일치하지 않으면 Basic 으로 폴백.
+export const requireAdminOrBackupToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const backupToken = process.env.BACKUP_TOKEN
+  const auth = req.headers.authorization || ''
+
+  if (backupToken && auth.startsWith('Bearer ')) {
+    const presented = auth.slice(7).trim()
+    if (timingSafeEqual(presented, backupToken)) return next()
+    return res.status(401).json({ ok: false, error: 'Invalid backup token' })
+  }
+
+  return requireAdmin(req, res, next)
+}

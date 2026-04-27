@@ -6,13 +6,22 @@ import {
   downloadCsv,
   fetchLeads,
   getAdminToken,
+  patchLead,
   setAdminToken,
   verifyToken,
   type AdminLead,
+  type LeadStatus,
   type LeadsResponse,
 } from '../lib/admin'
 import { interestOptions } from '../lib/schemas'
 import { BroadcastModal } from './BroadcastModal'
+
+const STATUS_OPTIONS: { value: LeadStatus; label: string; tone: string }[] = [
+  { value: 'new',       label: '신규',     tone: 'bg-stone-100 text-stone-700' },
+  { value: 'contacted', label: '연락함',   tone: 'bg-blue-100 text-blue-800' },
+  { value: 'converted', label: '전환',     tone: 'bg-green-100 text-green-800' },
+  { value: 'rejected',  label: '거절',     tone: 'bg-red-100 text-red-700' },
+]
 
 const interestLabel = (k: string): string =>
   interestOptions.find((o) => o.value === k)?.label ?? k
@@ -95,9 +104,11 @@ function LoginScreen({ onSuccess }: { onSuccess: (token: string) => void }) {
 function LeadsTable({
   items,
   onDelete,
+  onPatch,
 }: {
   items: AdminLead[]
   onDelete: (id: number) => void
+  onPatch: (id: number, patch: { memo?: string | null; status?: LeadStatus }) => void
 }) {
   if (items.length === 0) {
     return (
@@ -121,6 +132,8 @@ function LeadsTable({
             <th className="px-3 py-2 text-left">관심상품</th>
             <th className="px-3 py-2 text-center">SMS</th>
             <th className="px-3 py-2 text-left">유입</th>
+            <th className="px-3 py-2 text-left">상태</th>
+            <th className="px-3 py-2 text-left">메모</th>
             <th className="px-3 py-2 text-center">삭제</th>
           </tr>
         </thead>
@@ -158,6 +171,41 @@ function LeadsTable({
                 )}
               </td>
               <td className="px-3 py-2 text-stone-500">{row.ref}</td>
+              <td className="px-3 py-2">
+                <select
+                  value={(row.status as LeadStatus) || 'new'}
+                  onChange={(e) => onPatch(row.id, { status: e.target.value as LeadStatus })}
+                  className={`text-xs px-2 py-1 rounded border-0 ${
+                    STATUS_OPTIONS.find((s) => s.value === row.status)?.tone ??
+                    'bg-stone-100 text-stone-700'
+                  }`}
+                >
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td className="px-3 py-2 min-w-[180px]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = window.prompt('메모 (최대 500자, 빈 값으로 두면 삭제)', row.memo ?? '')
+                    if (next === null) return
+                    const trimmed = next.trim()
+                    onPatch(row.id, { memo: trimmed || null })
+                  }}
+                  className="text-left text-xs text-stone-700 hover:text-stone-900 hover:underline w-full"
+                  title="클릭해서 편집"
+                >
+                  {row.memo ? (
+                    <span className="line-clamp-2">{row.memo}</span>
+                  ) : (
+                    <span className="text-stone-400">+ 메모 추가</span>
+                  )}
+                </button>
+              </td>
               <td className="px-3 py-2 text-center">
                 <button
                   type="button"
@@ -227,6 +275,25 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
       return
     }
     await load()
+  }
+
+  const handlePatch = async (
+    id: number,
+    patch: { memo?: string | null; status?: LeadStatus },
+  ) => {
+    setData((prev) =>
+      prev
+        ? {
+            ...prev,
+            items: prev.items.map((it) => (it.id === id ? { ...it, ...patch } : it)),
+          }
+        : prev,
+    )
+    const res = await patchLead(token, id, patch)
+    if (!res.ok) {
+      alert(`업데이트 실패: ${res.error}`)
+      await load()
+    }
   }
 
   const handleDownloadCsv = async () => {
@@ -346,7 +413,7 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
           </div>
         ) : data ? (
           <>
-            <LeadsTable items={data.items} onDelete={handleDelete} />
+            <LeadsTable items={data.items} onDelete={handleDelete} onPatch={handlePatch} />
 
             <div className="flex items-center justify-between text-sm">
               <div className="text-stone-500">

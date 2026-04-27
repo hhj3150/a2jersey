@@ -99,6 +99,26 @@ export async function deleteLead(
   }
 }
 
+export type LeadStatus = 'new' | 'contacted' | 'converted' | 'rejected'
+
+export async function patchLead(
+  token: string,
+  id: number,
+  patch: { memo?: string | null; status?: LeadStatus },
+): Promise<{ ok: true; updatedId: number } | AdminError> {
+  try {
+    const res = await fetch(`${env.apiUrl}/api/admin/leads/${id}`, {
+      method: 'PATCH',
+      headers: { ...headers(token), 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+    return await res.json()
+  } catch (err) {
+    console.error('[patchLead] error:', err)
+    return { ok: false, error: '네트워크 오류' }
+  }
+}
+
 export async function downloadCsv(token: string): Promise<AdminError | null> {
   try {
     const res = await fetch(`${env.apiUrl}/api/admin/export.csv`, {
