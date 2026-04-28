@@ -145,7 +145,7 @@ export function Privacy() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Solapi 서비스 운영사</td>
+                    <td>(주)솔라피 (Solapi)</td>
                     <td>마케팅 SMS/LMS 메시지 발송</td>
                     <td>이름, 휴대폰 번호</td>
                   </tr>
