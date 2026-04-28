@@ -57,7 +57,7 @@ export const registerFormSchema = z.object({
   }),
   ageConsent: z.literal(true, {
     errorMap: () => ({
-      message: '만 14세 이상만 가입할 수 있습니다',
+      message: '만 14세 이상임을 확인해주세요',
     }),
   }),
 })
