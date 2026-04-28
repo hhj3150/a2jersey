@@ -10,10 +10,10 @@ interface PreviewItem {
 }
 
 const ITEMS: PreviewItem[] = [
-  { name: '750ml A2 저지 헤이밀크',     price: '12,000원', status: '6월 1일 오픈' },
-  { name: '180ml A2 저지 헤이밀크',     price: '3,500원',  status: '6월 1일 오픈' },
-  { name: '500ml A2 저지 플래인 요거트', price: '10,000원', status: '6월 1일 오픈' },
-  { name: '500ml A2 저지 프로틴 요거트', price: '10,000원', status: '6월 1일 오픈' },
+  { name: '750ml A2 저지 헤이밀크',     price: '12,000원', status: '정기배송 6월 1일' },
+  { name: '180ml A2 저지 헤이밀크',     price: '3,500원',  status: '정기배송 6월 1일' },
+  { name: '500ml A2 저지 플래인 요거트', price: '10,000원', status: '정기배송 6월 1일' },
+  { name: '500ml A2 저지 프로틴 요거트', price: '10,000원', status: '정기배송 6월 1일' },
 ]
 
 const POLICY_NOTES: string[] = [
@@ -63,11 +63,11 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
       <div className="container-app">
         <p className="section-eyebrow text-center">Subscription</p>
         <h2 id="subscription-preview-title" className="section-title text-center">
-          준비 중인 라인업
+          송영신목장 라인업
         </h2>
         <p className="mt-3 text-sm text-mute text-center max-w-reading mx-auto">
-          국내산 A2 저지(Jersey cow) 우유를 찾는 소비자를 위해 송영신목장은
-          {' '}{formatDate(launchDate)}부터 정기구독 서비스를 준비하고 있습니다.
+          국내산 A2 저지(Jersey cow) 헤이밀크와 요거트 라인업입니다. 현재 안성팜랜드에서 시판 중이며,
+          사전회원 모집 후 {formatDate(launchDate)}부터 정기배송이 시작됩니다.
         </p>
 
         <figure className="relative mt-8 flex justify-center">

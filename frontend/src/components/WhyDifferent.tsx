@@ -32,10 +32,6 @@ const CARDS: Card[] = [
     teaser: '저지 품종 특유의 진하고 풍부한 풍미.',
     image: '/jersey-richness.jpg',
     backdrop: '/jersey-bottle-real.jpg',
-    photo: {
-      src: '/jersey-bottle-real.jpg',
-      caption: '180ml A2 저지 헤이밀크 · 한 모금에 담긴 깊은 풍미',
-    },
     tags: ['Rich', 'Creamy'],
     body: [
       '저지(Jersey) 품종은 다른 젖소 품종에 비해 유지방·단백질이 풍부한 편으로 알려져 있습니다.',
