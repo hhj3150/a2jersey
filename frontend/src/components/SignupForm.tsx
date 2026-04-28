@@ -60,6 +60,7 @@ export function SignupForm() {
     register,
     handleSubmit,
     setError,
+    clearErrors,
     control,
     setValue,
     watch,
@@ -78,7 +79,7 @@ export function SignupForm() {
       privacyConsent: false as unknown as true,
       ageConsent: false as unknown as true,
     },
-    mode: 'onBlur',
+    mode: 'onTouched',
   })
 
   const postcode = watch('postcode')
@@ -233,7 +234,11 @@ export function SignupForm() {
               <input
                 type="checkbox"
                 className="checkbox mt-0.5"
-                {...register('ageConsent')}
+                {...register('ageConsent', {
+                  onChange: (e) => {
+                    if (e.target.checked) clearErrors('ageConsent')
+                  },
+                })}
               />
               <span className="text-sm text-ink leading-relaxed">
                 <span className="font-semibold text-soil-dark">[필수]</span> 본인은 만 14세 이상입니다.
@@ -251,7 +256,11 @@ export function SignupForm() {
               <input
                 type="checkbox"
                 className="checkbox mt-0.5"
-                {...register('privacyConsent')}
+                {...register('privacyConsent', {
+                  onChange: (e) => {
+                    if (e.target.checked) clearErrors('privacyConsent')
+                  },
+                })}
               />
               <span className="text-sm text-ink leading-relaxed">
                 <span className="font-semibold text-soil-dark">[필수]</span> 개인정보 수집·이용에 동의합니다. (
