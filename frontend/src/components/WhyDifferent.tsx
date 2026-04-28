@@ -11,7 +11,7 @@ const CARDS: Card[] = [
     no: 'No 01',
     eng: 'The Rare',
     kr: '희소함',
-    teaser: '세계 젖소의 오직 5%, 한국에는 0.1%.',
+    teaser: '국내에서 보기 드문 저지(Jersey) 품종.',
     image: '/jersey-rare.jpg',
     backdrop: '/jersey-cow-real.jpg',
     photo: {
@@ -21,7 +21,7 @@ const CARDS: Card[] = [
     tags: ['Jersey', 'Rare', 'Precious'],
     body: [
       '영국 저지섬에서 700년, 한국 송영신목장에서 18년. 귀하기에 더 정성스러운 우유.',
-      '전 세계 젖소 중 5%, 한국에는 0.1%만 존재하는 저지(Jersey cow). 희소함이 곧 가치가 됩니다.',
+      '국내에 매우 드물게 사육되는 저지(Jersey cow). 희소함이 곧 가치가 됩니다.',
     ],
   },
   {
@@ -29,17 +29,17 @@ const CARDS: Card[] = [
     no: 'No 02',
     eng: 'The Richness',
     kr: '풍미의 깊이',
-    teaser: '유지방 25%, 단백질 18%, 칼슘 20% 더 풍부.',
+    teaser: '저지 품종 특유의 진하고 풍부한 풍미.',
     image: '/jersey-richness.jpg',
     backdrop: '/jersey-bottle-real.jpg',
     photo: {
       src: '/jersey-bottle-real.jpg',
-      caption: '180ml A2 저지 헤이밀크 · 한 모금에 담긴 두 배의 풍미',
+      caption: '180ml A2 저지 헤이밀크 · 한 모금에 담긴 깊은 풍미',
     },
-    tags: ['Rich', 'Creamy', 'Nutrient-Dense'],
+    tags: ['Rich', 'Creamy'],
     body: [
-      '저지 우유는 일반 홀스타인 대비 유지방 25%, 단백질 18%, 칼슘 20% 더 풍부합니다.',
-      '진하지만 무겁지 않은 완벽한 균형. 한 잔으로 충분한 고밀도의 영양.',
+      '저지(Jersey) 품종은 다른 젖소 품종에 비해 유지방·단백질이 풍부한 편으로 알려져 있습니다.',
+      '진하지만 무겁지 않은 완벽한 균형. 한 잔으로도 충분한 풍미의 깊이.',
     ],
   },
   {
@@ -47,12 +47,12 @@ const CARDS: Card[] = [
     no: 'No 03',
     eng: 'The Purity',
     kr: '본연의 맛',
-    teaser: '소화의 부담 없이, A2A2 단일 유전형.',
+    teaser: 'A2A2 단일 유전형의 우유.',
     image: '/jersey-purity.jpg',
     tags: ['A2A2', 'Pure', 'Original'],
     body: [
-      '인류가 8천 년 전 마셨던 본래의 우유는 모두 A2 단백질이었습니다. 우리는 그 시작으로 돌아갑니다.',
-      '소화의 무게가 사라진, 가벼우면서도 깊은 한 잔. A2A2 단일 유전형으로 본연의 우유를 마십니다.',
+      '저지(Jersey)는 A2 베타카제인 단일 유전형(A2A2)을 갖춘 품종입니다. 송영신목장은 그 본연의 모습 그대로를 담고자 합니다.',
+      '가벼우면서도 깊은 한 잔. A2A2 단일 유전형으로 빚은 본연의 우유.',
     ],
   },
   {

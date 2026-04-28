@@ -51,6 +51,20 @@ if (!columnExists('leads', 'address_detail')) {
   db.exec(`ALTER TABLE leads ADD COLUMN address_detail TEXT`)
 }
 
+// 동의 일시 추적 (PIPA §22 입증 책임 — 누가 언제 동의했는지 기록)
+if (!columnExists('leads', 'privacy_consent_at')) {
+  db.exec(`ALTER TABLE leads ADD COLUMN privacy_consent_at TEXT`)
+}
+if (!columnExists('leads', 'sms_consent_at')) {
+  db.exec(`ALTER TABLE leads ADD COLUMN sms_consent_at TEXT`)
+}
+if (!columnExists('leads', 'age_consent_at')) {
+  db.exec(`ALTER TABLE leads ADD COLUMN age_consent_at TEXT`)
+}
+
+// 1년 보유기간 만료 자동 파기를 빠르게 하기 위한 인덱스
+db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_created_at_asc ON leads(created_at ASC)`)
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS broadcast_history (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,6 +101,9 @@ export interface LeadRow {
   address_road: string | null
   address_jibun: string | null
   address_detail: string | null
+  privacy_consent_at: string | null
+  sms_consent_at: string | null
+  age_consent_at: string | null
 }
 
 export interface BroadcastRow {

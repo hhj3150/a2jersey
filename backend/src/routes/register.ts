@@ -17,10 +17,12 @@ const registerLimiter = rateLimit({
 const insertLead = db.prepare(`
   INSERT INTO leads
     (name, phone, region, interests, sms_consent, privacy_consent, ref, user_agent, ip,
-     postcode, address_road, address_jibun, address_detail)
+     postcode, address_road, address_jibun, address_detail,
+     privacy_consent_at, sms_consent_at, age_consent_at)
   VALUES
     (@name, @phone, @region, @interests, @sms_consent, @privacy_consent, @ref, @user_agent, @ip,
-     @postcode, @address_road, @address_jibun, @address_detail)
+     @postcode, @address_road, @address_jibun, @address_detail,
+     @privacy_consent_at, @sms_consent_at, @age_consent_at)
 `)
 
 const findByPhone = db.prepare<[string]>('SELECT id FROM leads WHERE phone = ?')
@@ -43,6 +45,8 @@ router.post('/register', registerLimiter, (req: Request, res: Response) => {
 
     const region = parsed.region?.trim() || deriveRegion(parsed.addressRoad)
 
+    const nowIso = new Date().toISOString()
+
     const result = insertLead.run({
       name: parsed.name,
       phone: parsed.phone,
@@ -57,6 +61,9 @@ router.post('/register', registerLimiter, (req: Request, res: Response) => {
       address_road: parsed.addressRoad,
       address_jibun: parsed.addressJibun,
       address_detail: parsed.addressDetail,
+      privacy_consent_at: nowIso,
+      sms_consent_at: parsed.smsConsent ? nowIso : null,
+      age_consent_at: nowIso,
     })
 
     return res.status(201).json({

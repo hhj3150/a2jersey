@@ -76,6 +76,7 @@ export function SignupForm() {
       interests: [],
       smsConsent: false,
       privacyConsent: false as unknown as true,
+      ageConsent: false as unknown as true,
     },
     mode: 'onBlur',
   })
@@ -232,15 +233,48 @@ export function SignupForm() {
               <input
                 type="checkbox"
                 className="checkbox mt-0.5"
+                {...register('ageConsent')}
+              />
+              <span className="text-sm text-ink leading-relaxed">
+                <span className="font-semibold text-soil-dark">[필수]</span> 본인은 만 14세 이상입니다.
+                <br />
+                <span className="text-xs text-mute">
+                  「개인정보 보호법」 제22조의2에 따라 만 14세 미만 아동의 가입을 받지 않습니다.
+                </span>
+              </span>
+            </label>
+            {errors.ageConsent && (
+              <p className="field-error pl-8">{errors.ageConsent.message}</p>
+            )}
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox mt-0.5"
                 {...register('privacyConsent')}
               />
               <span className="text-sm text-ink leading-relaxed">
-                <span className="font-semibold text-soil-dark">[필수]</span> 개인정보 수집·이용에 동의합니다.
+                <span className="font-semibold text-soil-dark">[필수]</span> 개인정보 수집·이용에 동의합니다. (
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-soil-dark underline underline-offset-2 hover:text-soil"
+                >
+                  처리방침 전문 보기
+                </a>
+                )
                 <br />
-                <span className="text-xs text-mute">
-                  수집 항목: 이름, 휴대폰 번호, 우편번호·주소·상세주소, 관심 상품 ·
-                  보유 기간: 정기구독 오픈 안내 발송 후 1년 ·
-                  거부 시 사전회원 등록이 어렵습니다.
+                <span className="text-xs text-mute leading-relaxed block mt-1">
+                  · 수집 항목: 이름, 휴대폰 번호, 우편번호·도로명·지번·상세주소, 관심 상품
+                  <br />
+                  · 자동 수집: 접속 IP, User-Agent, 접속 일시, 유입 경로(ref)
+                  <br />
+                  · 처리 위탁: Solapi(SMS 발송), Railway·Netlify(미국, 호스팅)
+                  <br />
+                  · 보유 기간: 가입일로부터 1년 — 만료 시 자동 파기
+                  <br />
+                  · 거부 시 사전회원 등록이 어렵습니다.
                 </span>
               </span>
             </label>
@@ -255,13 +289,37 @@ export function SignupForm() {
                 {...register('smsConsent')}
               />
               <span className="text-sm text-ink leading-relaxed">
-                <span className="font-semibold text-mute">[선택]</span> 정기구독 오픈 안내 및 마케팅 문자 수신에 동의합니다.
+                <span className="font-semibold text-mute">[선택]</span> 정기구독 오픈 안내 및 마케팅 문자(광고) 수신에 동의합니다.
                 <br />
-                <span className="text-xs text-mute">
-                  미동의 시에도 가입은 가능하나 오픈 안내 문자를 받지 못할 수 있습니다.
+                <span className="text-xs text-mute leading-relaxed block mt-1">
+                  · 미동의 시에도 가입은 가능하나 오픈 안내 문자를 받지 못할 수 있습니다.
+                  <br />
+                  · 야간(KST 21:00~08:00)에는 발송하지 않으며, 메시지마다 080 무료 수신거부 번호가 포함됩니다.
                 </span>
               </span>
             </label>
+
+            <p className="text-[11px] text-mute leading-relaxed pt-2 border-t border-line/60">
+              가입 시{' '}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-soil-dark underline underline-offset-2 hover:text-soil"
+              >
+                사전회원 이용약관
+              </a>{' '}
+              및{' '}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-soil-dark underline underline-offset-2 hover:text-soil"
+              >
+                개인정보 처리방침
+              </a>
+              에 동의한 것으로 간주됩니다.
+            </p>
           </div>
 
           {state.kind === 'error' && (

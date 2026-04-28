@@ -5,6 +5,7 @@ import compression from 'compression'
 import registerRouter from './routes/register.js'
 import adminRouter from './routes/admin.js'
 import { db } from './db.js'
+import { startRetentionScheduler, stopRetentionScheduler } from './lib/retention.js'
 
 const app = express()
 const PORT = Number(process.env.PORT) || 4000
@@ -70,17 +71,36 @@ app.get('/api/health', (_req, res) => {
 app.use('/api', registerRouter)
 app.use('/api/admin', adminRouter)
 
-app.use((_req, res) => {
-  res.status(404).json({ ok: false, error: 'Not found' })
+// 정보주체 권리 행사 안내 — PIPA §35~37 (열람·정정·삭제·처리정지)
+// 실제 처리는 이메일 접수 → 보호책임자 수동 처리 (소상공인 표준 운영 방식)
+app.get('/api/data-subject-rights', (_req, res) => {
+  res.json({
+    ok: true,
+    contact: {
+      email: 'hhj3150@hanmail.net',
+      phone: '031-674-3150',
+      responsibleParty: '송영신 (대표이사, 개인정보 보호책임자)',
+    },
+    requestableRights: [
+      '개인정보 열람 (PIPA §35)',
+      '개인정보 정정·삭제 (PIPA §36)',
+      '개인정보 처리정지 (PIPA §37)',
+      '동의 철회 및 회원 탈퇴',
+    ],
+    expectedResponseDays: 10,
+    note: '요청 메일 제목에 [개인정보 권리행사]를 포함해주시면 신속히 처리됩니다.',
+  })
 })
 
 const server = app.listen(PORT, () => {
   console.log(`[a2jersey-api] listening on :${PORT}`)
   console.log(`[a2jersey-api] cors origins: ${corsOrigins.join(', ')}`)
+  startRetentionScheduler()
 })
 
 const shutdown = (signal: string): void => {
   console.log(`[a2jersey-api] ${signal} received — shutting down`)
+  stopRetentionScheduler()
   server.close(() => {
     try {
       db.pragma('wal_checkpoint(TRUNCATE)')

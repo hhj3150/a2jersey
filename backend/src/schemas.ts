@@ -75,6 +75,11 @@ export const registerSchema = z.object({
   privacyConsent: z.literal(true, {
     errorMap: () => ({ message: '개인정보 수집·이용에 동의해주세요' }),
   }),
+  ageConsent: z.literal(true, {
+    errorMap: () => ({
+      message: '만 14세 이상만 가입할 수 있습니다',
+    }),
+  }),
   ref: z
     .string()
     .trim()

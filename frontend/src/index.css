@@ -73,6 +73,48 @@
   .card {
     @apply rounded-2xl border border-line bg-surface p-5;
   }
+
+  .prose-policy {
+    @apply text-sm leading-relaxed text-ink;
+  }
+  .prose-policy h2 {
+    @apply mt-10 mb-3 text-lg font-semibold text-ink;
+  }
+  .prose-policy h3 {
+    @apply mt-5 mb-2 text-sm font-semibold text-soil-dark;
+  }
+  .prose-policy p {
+    @apply my-3;
+  }
+  .prose-policy ol {
+    @apply my-3 pl-5 list-decimal space-y-1.5;
+  }
+  .prose-policy ul {
+    @apply my-3 pl-5 list-disc space-y-1;
+  }
+  .prose-policy li > ul,
+  .prose-policy li > ol {
+    @apply mt-1.5;
+  }
+  .prose-policy a {
+    @apply text-soil-dark underline underline-offset-2 hover:text-soil;
+  }
+  .prose-policy table {
+    @apply my-4 w-full border-collapse text-xs;
+  }
+  .prose-policy th,
+  .prose-policy td {
+    @apply border border-line px-2.5 py-2 text-left align-top;
+  }
+  .prose-policy th {
+    @apply bg-surface font-semibold;
+  }
+  .prose-policy section {
+    @apply mb-2;
+  }
+  .prose-policy strong {
+    @apply font-semibold;
+  }
 }
 
 /* Smooth scrolling for anchor links */
