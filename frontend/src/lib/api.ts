@@ -30,6 +30,7 @@ export async function postRegister(
       interests: values.interests,
       smsConsent: values.smsConsent,
       privacyConsent: values.privacyConsent,
+      ageConsent: values.ageConsent,
       ref: ref || 'direct',
     }
     const res = await fetch(`${env.apiUrl}/api/register`, {
