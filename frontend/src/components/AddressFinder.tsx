@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const SDK_URL = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
 const SDK_FLAG = '__a2jersey_postcode_loaded'
@@ -12,8 +12,9 @@ interface DaumPostcodeData {
   apartment?: 'Y' | 'N'
 }
 
-interface DaumPostcode {
+interface DaumPostcodeInstance {
   open(): void
+  embed(element: HTMLElement): void
 }
 
 declare global {
@@ -25,7 +26,7 @@ declare global {
         animation?: boolean
         width?: string | number
         height?: string | number
-      }) => DaumPostcode
+      }) => DaumPostcodeInstance
     }
     [SDK_FLAG]?: Promise<void>
   }
@@ -62,6 +63,19 @@ interface AddressFinderProps {
 export function AddressFinder({ value, onChange, error }: AddressFinderProps) {
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [open, setOpen] = useState(false)
+  const embedRef = useRef<HTMLDivElement | null>(null)
+  const embeddedRef = useRef(false)
+  const onChangeRef = useRef(onChange)
+
+  useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+
+  useEffect(() => {
+    loadSdk().catch(() => {
+    })
+  }, [])
 
   const openSearch = useCallback(async () => {
     setLoadError(null)
@@ -73,22 +87,55 @@ export function AddressFinder({ value, onChange, error }: AddressFinderProps) {
         setLoadError('주소 검색을 사용할 수 없습니다')
         return
       }
-      new window.daum.Postcode({
-        oncomplete: (data) => {
-          const jibun = data.jibunAddress || data.autoJibunAddress || ''
-          onChange({
-            postcode: data.zonecode,
-            roadAddress: data.roadAddress,
-            jibunAddress: jibun,
-          })
-        },
-        animation: true,
-      }).open()
+      setOpen(true)
     } catch (err) {
       setLoading(false)
       setLoadError(err instanceof Error ? err.message : '주소 검색 실패')
     }
-  }, [onChange])
+  }, [])
+
+  useEffect(() => {
+    if (!open) {
+      embeddedRef.current = false
+      return
+    }
+    if (embeddedRef.current) return
+    if (!embedRef.current) return
+    if (!window.daum?.Postcode) return
+
+    embeddedRef.current = true
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        const jibun = data.jibunAddress || data.autoJibunAddress || ''
+        onChangeRef.current({
+          postcode: data.zonecode,
+          roadAddress: data.roadAddress,
+          jibunAddress: jibun,
+        })
+        setOpen(false)
+      },
+      onclose: () => {
+        setOpen(false)
+      },
+      width: '100%',
+      height: '100%',
+      animation: true,
+    }).embed(embedRef.current)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [open])
 
   return (
     <div>
@@ -115,6 +162,27 @@ export function AddressFinder({ value, onChange, error }: AddressFinderProps) {
       )}
       {(error || loadError) && (
         <p className="field-error">{error || loadError}</p>
+      )}
+
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpen(false)
+          }}
+        >
+          <div className="relative w-full max-w-md h-[500px] max-h-[90vh] rounded-xl bg-white shadow-xl overflow-hidden">
+            <button
+              type="button"
+              aria-label="닫기"
+              onClick={() => setOpen(false)}
+              className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-white/90 border border-line text-soil-dark text-lg leading-none hover:bg-cream"
+            >
+              ×
+            </button>
+            <div ref={embedRef} className="w-full h-full" />
+          </div>
+        </div>
       )}
     </div>
   )
