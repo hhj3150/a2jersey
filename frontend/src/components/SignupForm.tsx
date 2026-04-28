@@ -90,10 +90,11 @@ export function SignupForm() {
       ? { postcode, roadAddress: addressRoad, jibunAddress: addressJibun || '' }
       : null
 
-  const onSubmit = handleSubmit(async (values) => {
-    setState({ kind: 'submitting' })
-    const ref = getRefFromUrl()
-    const result = await postRegister(values, ref)
+  const onSubmit = handleSubmit(
+    async (values) => {
+      setState({ kind: 'submitting' })
+      const ref = getRefFromUrl()
+      const result = await postRegister(values, ref)
 
     if (result.ok) {
       setState({ kind: 'success', id: result.id })
@@ -124,8 +125,27 @@ export function SignupForm() {
       return
     }
 
-    setState({ kind: 'error', message: result.error })
-  })
+      setState({ kind: 'error', message: result.error })
+    },
+    (formErrors) => {
+      const order: (keyof RegisterFormValues)[] = [
+        'name',
+        'phone',
+        'postcode',
+        'addressRoad',
+        'addressDetail',
+        'interests',
+        'ageConsent',
+        'privacyConsent',
+      ]
+      const first = order.find((k) => formErrors[k])
+      if (!first) return
+      const el =
+        document.querySelector<HTMLElement>(`#${first}`) ??
+        document.querySelector<HTMLElement>(`[name="${first}"]`)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    },
+  )
 
   if (state.kind === 'success') {
     return (
@@ -230,15 +250,25 @@ export function SignupForm() {
           </fieldset>
 
           <div className="space-y-3 pt-2">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="checkbox mt-0.5"
-                {...register('ageConsent', {
-                  onChange: (e) => {
-                    if (e.target.checked) clearErrors('ageConsent')
-                  },
-                })}
+            <label htmlFor="ageConsent" className="flex items-start gap-3 cursor-pointer">
+              <Controller
+                name="ageConsent"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    id="ageConsent"
+                    type="checkbox"
+                    className="checkbox mt-0.5"
+                    checked={field.value === true}
+                    onChange={(e) => {
+                      const checked = e.target.checked
+                      field.onChange(checked)
+                      if (checked) clearErrors('ageConsent')
+                    }}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                  />
+                )}
               />
               <span className="text-sm text-ink leading-relaxed">
                 <span className="font-semibold text-soil-dark">[필수]</span> 본인은 만 14세 이상입니다.
@@ -252,15 +282,25 @@ export function SignupForm() {
               <p className="field-error pl-8">{errors.ageConsent.message}</p>
             )}
 
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="checkbox mt-0.5"
-                {...register('privacyConsent', {
-                  onChange: (e) => {
-                    if (e.target.checked) clearErrors('privacyConsent')
-                  },
-                })}
+            <label htmlFor="privacyConsent" className="flex items-start gap-3 cursor-pointer">
+              <Controller
+                name="privacyConsent"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    id="privacyConsent"
+                    type="checkbox"
+                    className="checkbox mt-0.5"
+                    checked={field.value === true}
+                    onChange={(e) => {
+                      const checked = e.target.checked
+                      field.onChange(checked)
+                      if (checked) clearErrors('privacyConsent')
+                    }}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                  />
+                )}
               />
               <span className="text-sm text-ink leading-relaxed">
                 <span className="font-semibold text-soil-dark">[필수]</span> 개인정보 수집·이용에 동의합니다. (
