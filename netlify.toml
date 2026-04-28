@@ -37,3 +37,21 @@
   for = "/admin/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow, noarchive"
+
+# index.html: 절대 캐시 금지 (iOS Safari가 옛 번들 가리키는 옛 HTML을 보유하는 케이스 차단)
+# 해시된 JS/CSS는 자동으로 영구 캐시되므로 성능 영향 없음
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
+
+# 해시된 정적 자산은 영구 캐시 (immutable)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
