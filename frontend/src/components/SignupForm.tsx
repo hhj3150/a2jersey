@@ -165,6 +165,9 @@ export function SignupForm() {
         <p className="mt-3 text-sm text-mute text-center max-w-reading mx-auto">
           이름과 연락처만 남기시면 6월 1일 오픈 즉시 가장 먼저 안내드립니다.
         </p>
+        <p className="mt-1 text-[10px] text-mute/60 text-center" aria-hidden>
+          build: 2026-04-29 / signup-fix-3
+        </p>
 
         <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5">
           <div>
