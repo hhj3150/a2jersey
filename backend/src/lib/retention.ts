@@ -3,9 +3,18 @@ import { db } from '../db.js'
 // 보유기간(일) — 환경변수로 덮어쓸 수 있음 (테스트·운영 분리용)
 const RETENTION_DAYS = Number(process.env.RETENTION_DAYS || 365)
 
+// OTP 보유기간 — 코드 만료(5분) + 토큰 만료(10분) 후 7일 버퍼 (남용 조사용 audit trail).
+// expires_at 기준으로 정리하면 미검증·검증완료·소비완료 모두 안전하게 포함됨.
+const OTP_RETENTION_DAYS = Number(process.env.OTP_RETENTION_DAYS || 7)
+
 const purgeStatement = db.prepare(`
   DELETE FROM leads
   WHERE datetime(created_at) <= datetime('now', ?)
+`)
+
+const purgeOtpStatement = db.prepare(`
+  DELETE FROM phone_verifications
+  WHERE datetime(expires_at) <= datetime('now', ?)
 `)
 
 export interface PurgeResult {
@@ -21,6 +30,35 @@ export const purgeExpiredLeads = (): PurgeResult => {
     deletedCount: Number(info.changes ?? 0),
     cutoffDays: RETENTION_DAYS,
     ranAt: new Date().toISOString(),
+  }
+}
+
+export const purgeExpiredOtps = (): PurgeResult => {
+  const offset = `-${OTP_RETENTION_DAYS} days`
+  const info = purgeOtpStatement.run(offset)
+  return {
+    deletedCount: Number(info.changes ?? 0),
+    cutoffDays: OTP_RETENTION_DAYS,
+    ranAt: new Date().toISOString(),
+  }
+}
+
+const runDailyPurge = (): void => {
+  try {
+    const r = purgeExpiredLeads()
+    console.log(
+      `[retention] daily purge: deleted ${r.deletedCount} expired leads (cutoff ${r.cutoffDays}d)`,
+    )
+  } catch (err) {
+    console.error('[retention] daily lead purge failed:', err)
+  }
+  try {
+    const r = purgeExpiredOtps()
+    console.log(
+      `[retention] daily purge: deleted ${r.deletedCount} expired OTP records (cutoff ${r.cutoffDays}d)`,
+    )
+  } catch (err) {
+    console.error('[retention] daily OTP purge failed:', err)
   }
 }
 
@@ -58,42 +96,27 @@ export const startRetentionScheduler = (): void => {
   // 1) 서버 부팅 직후 1회 실행 — 다운타임 동안 만료된 데이터 즉시 정리
   try {
     const r = purgeExpiredLeads()
-    if (r.deletedCount > 0) {
-      console.log(
-        `[retention] startup purge: deleted ${r.deletedCount} expired leads (cutoff ${r.cutoffDays}d)`,
-      )
-    } else {
-      console.log(
-        `[retention] startup purge: no expired leads (cutoff ${r.cutoffDays}d)`,
-      )
-    }
+    console.log(
+      `[retention] startup purge: deleted ${r.deletedCount} expired leads (cutoff ${r.cutoffDays}d)`,
+    )
   } catch (err) {
-    console.error('[retention] startup purge failed:', err)
+    console.error('[retention] startup lead purge failed:', err)
+  }
+  try {
+    const r = purgeExpiredOtps()
+    console.log(
+      `[retention] startup purge: deleted ${r.deletedCount} expired OTP records (cutoff ${r.cutoffDays}d)`,
+    )
+  } catch (err) {
+    console.error('[retention] startup OTP purge failed:', err)
   }
 
   // 2) 다음 KST 04:00 에 1차 실행 → 이후 24시간 주기 반복
   const scheduleNext = () => {
     const wait = msUntilNextKstFourAm()
     timerHandle = setTimeout(() => {
-      try {
-        const r = purgeExpiredLeads()
-        console.log(
-          `[retention] daily purge: deleted ${r.deletedCount} expired leads (cutoff ${r.cutoffDays}d)`,
-        )
-      } catch (err) {
-        console.error('[retention] daily purge failed:', err)
-      }
-      // 24시간마다 반복
-      timerHandle = setInterval(() => {
-        try {
-          const r = purgeExpiredLeads()
-          console.log(
-            `[retention] daily purge: deleted ${r.deletedCount} expired leads (cutoff ${r.cutoffDays}d)`,
-          )
-        } catch (err) {
-          console.error('[retention] daily purge failed:', err)
-        }
-      }, 24 * 60 * 60 * 1000)
+      runDailyPurge()
+      timerHandle = setInterval(runDailyPurge, 24 * 60 * 60 * 1000)
     }, wait)
   }
 
