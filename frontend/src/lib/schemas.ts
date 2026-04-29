@@ -60,6 +60,7 @@ export const registerFormSchema = z.object({
       message: '만 14세 이상임을 확인해주세요',
     }),
   }),
+  verificationToken: z.string().min(1, '휴대폰 인증을 완료해주세요'),
 })
 
 export type RegisterFormValues = z.infer<typeof registerFormSchema>

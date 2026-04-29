@@ -8,6 +8,7 @@ import {
 } from '../lib/schemas'
 import { postRegister, getRefFromUrl } from '../lib/api'
 import { AddressFinder, type AddressValue } from './AddressFinder'
+import { PhoneVerifier } from './PhoneVerifier'
 
 function SuccessPanel() {
   return (
@@ -78,6 +79,7 @@ export function SignupForm() {
       smsConsent: false,
       privacyConsent: false as unknown as true,
       ageConsent: false as unknown as true,
+      verificationToken: '',
     },
     mode: 'onTouched',
   })
@@ -85,6 +87,10 @@ export function SignupForm() {
   const postcode = watch('postcode')
   const addressRoad = watch('addressRoad')
   const addressJibun = watch('addressJibun')
+  const phoneValue = watch('phone')
+  const verificationToken = watch('verificationToken')
+  const PHONE_REGEX = /^01[016789]-?\d{3,4}-?\d{4}$/
+  const phoneValid = PHONE_REGEX.test(phoneValue || '')
   const currentAddress: AddressValue | null =
     postcode && addressRoad
       ? { postcode, roadAddress: addressRoad, jibunAddress: addressJibun || '' }
@@ -131,6 +137,7 @@ export function SignupForm() {
       const order: (keyof RegisterFormValues)[] = [
         'name',
         'phone',
+        'verificationToken',
         'postcode',
         'addressRoad',
         'addressDetail',
@@ -140,9 +147,11 @@ export function SignupForm() {
       ]
       const first = order.find((k) => formErrors[k])
       if (!first) return
+      // verificationToken 은 화면 보이는 입력이 없으므로 phone 영역으로 스크롤
+      const target = first === 'verificationToken' ? 'phone' : first
       const el =
-        document.querySelector<HTMLElement>(`#${first}`) ??
-        document.querySelector<HTMLElement>(`[name="${first}"]`)
+        document.querySelector<HTMLElement>(`#${target}`) ??
+        document.querySelector<HTMLElement>(`[name="${target}"]`)
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     },
   )
@@ -192,6 +201,21 @@ export function SignupForm() {
               {...register('phone')}
             />
             {errors.phone && <p className="field-error">{errors.phone.message}</p>}
+            <PhoneVerifier
+              phone={phoneValue || ''}
+              phoneValid={phoneValid}
+              isVerified={Boolean(verificationToken)}
+              onVerified={(token) => {
+                setValue('verificationToken', token, { shouldValidate: true })
+                clearErrors('verificationToken')
+              }}
+              onReset={() => {
+                setValue('verificationToken', '', { shouldValidate: false })
+              }}
+            />
+            {errors.verificationToken && (
+              <p className="field-error">{errors.verificationToken.message}</p>
+            )}
           </div>
 
           <div>

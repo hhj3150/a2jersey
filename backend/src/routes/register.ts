@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit'
 import { ZodError } from 'zod'
 import { registerSchema, deriveRegion } from '../schemas.js'
 import { db } from '../db.js'
+import { verifyAndConsumeToken } from './verify.js'
 
 const router = Router()
 
@@ -30,6 +31,16 @@ const findByPhone = db.prepare<[string]>('SELECT id FROM leads WHERE phone = ?')
 router.post('/register', registerLimiter, (req: Request, res: Response) => {
   try {
     const parsed = registerSchema.parse(req.body)
+
+    // 휴대폰 인증 토큰 검증 (정통망법 §50 — 수신자 본인 검증)
+    const verify = verifyAndConsumeToken(parsed.verificationToken, parsed.phone)
+    if (!verify.ok) {
+      return res.status(400).json({
+        ok: false,
+        error: verify.error || '휴대폰 인증이 필요합니다',
+        fieldErrors: { verificationToken: [verify.error || '휴대폰 인증이 필요합니다'] },
+      })
+    }
 
     const existing = findByPhone.get(parsed.phone) as { id: number } | undefined
     if (existing) {

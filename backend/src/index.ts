@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import compression from 'compression'
 import registerRouter from './routes/register.js'
+import verifyRouter from './routes/verify.js'
 import adminRouter from './routes/admin.js'
 import { db } from './db.js'
 import { startRetentionScheduler, stopRetentionScheduler } from './lib/retention.js'
@@ -69,6 +70,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api', registerRouter)
+app.use('/api', verifyRouter)
 app.use('/api/admin', adminRouter)
 
 // 정보주체 권리 행사 안내 — PIPA §35~37 (열람·정정·삭제·처리정지)

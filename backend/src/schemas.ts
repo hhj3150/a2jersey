@@ -80,6 +80,11 @@ export const registerSchema = z.object({
       message: '만 14세 이상임을 확인해주세요',
     }),
   }),
+  verificationToken: z
+    .string({ required_error: '휴대폰 인증이 필요합니다' })
+    .trim()
+    .min(1, '휴대폰 인증이 필요합니다')
+    .max(100),
   ref: z
     .string()
     .trim()

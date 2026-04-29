@@ -65,6 +65,26 @@ if (!columnExists('leads', 'age_consent_at')) {
 // 1년 보유기간 만료 자동 파기를 빠르게 하기 위한 인덱스
 db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_created_at_asc ON leads(created_at ASC)`)
 
+// 휴대폰 OTP 인증 테이블 — 정통망법 §50 본인 검증 (수신자 본인 동의 입증)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS phone_verifications (
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone              TEXT    NOT NULL,
+    code_hash          TEXT    NOT NULL,
+    expires_at         TEXT    NOT NULL,
+    attempts           INTEGER NOT NULL DEFAULT 0,
+    verified_at        TEXT,
+    token              TEXT    UNIQUE,
+    token_expires_at   TEXT,
+    consumed_at        TEXT,
+    ip                 TEXT,
+    created_at         TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_phone_verifications_phone     ON phone_verifications(phone);
+  CREATE INDEX IF NOT EXISTS idx_phone_verifications_token     ON phone_verifications(token);
+  CREATE INDEX IF NOT EXISTS idx_phone_verifications_expires   ON phone_verifications(expires_at);
+`)
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS broadcast_history (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
