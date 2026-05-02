@@ -1,4 +1,5 @@
 import { useDDay } from '../lib/useDDay'
+import { env } from '../env'
 
 interface HeroProps {
   onCtaClick: () => void
@@ -8,6 +9,15 @@ interface HeroProps {
 export function Hero({ onCtaClick, launchDate }: HeroProps) {
   const dday = useDDay(launchDate)
   const launchLabel = formatLaunchLabel(launchDate)
+  const isLaunched = dday.phase === 'live' || dday.phase === 'today'
+
+  const handleCtaClick = () => {
+    if (isLaunched) {
+      window.open(env.smartstoreUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      onCtaClick()
+    }
+  }
 
   return (
     <section className="section pt-16 sm:pt-24">
@@ -50,10 +60,13 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
 
         <button
           type="button"
-          onClick={onCtaClick}
+          onClick={handleCtaClick}
           className="btn-primary mt-6 w-full sm:w-auto"
         >
-          {dday.phase === 'pre' ? `${launchLabel} 오픈 알림 받기` : '사전회원 등록하기'}
+          {isLaunched
+            ? '정기구독 신청하기'
+            : `${launchLabel} 오픈 알림 받기`}
+          <span className="ml-1.5" aria-hidden>{isLaunched ? '→' : ''}</span>
         </button>
       </div>
     </section>

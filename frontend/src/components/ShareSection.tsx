@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDDay } from '../lib/useDDay'
 
 const buildShareUrl = (): string => {
   if (typeof window === 'undefined') return 'https://a2jersey-pre.netlify.app'
@@ -9,10 +10,19 @@ const buildShareUrl = (): string => {
 }
 
 const SHARE_TITLE = '송영신목장 A2 Jersey Hay Milk'
-const SHARE_TEXT =
+const SHARE_TEXT_PRE =
   '국내산 A2 Jersey 우유 정기구독을 6월 1일 오픈합니다. 사전회원 신청하면 가장 먼저 안내드려요.'
+const SHARE_TEXT_LIVE =
+  '국내산 A2 Jersey 우유 — 송영신목장 헤이밀크와 요거트, 네이버 스마트스토어에서 정기구독으로 만나보세요.'
 
-export function ShareSection() {
+interface ShareSectionProps {
+  launchDate: string
+}
+
+export function ShareSection({ launchDate }: ShareSectionProps) {
+  const dday = useDDay(launchDate)
+  const isLaunched = dday.phase === 'live' || dday.phase === 'today'
+  const SHARE_TEXT = isLaunched ? SHARE_TEXT_LIVE : SHARE_TEXT_PRE
   const [status, setStatus] = useState<
     | { kind: 'idle' }
     | { kind: 'shared' }
@@ -61,9 +71,19 @@ export function ShareSection() {
             가족·친구에게도 알려주세요
           </h2>
           <p className="mt-3 text-sm text-mute max-w-reading mx-auto">
-            6월 1일 정기구독 오픈 정보를 함께 받아보실 수 있도록
-            <br />
-            가까운 분께 사전회원 안내를 공유해주세요.
+            {isLaunched ? (
+              <>
+                송영신목장 A2 Jersey 헤이밀크와 요거트를
+                <br />
+                가까운 분께 함께 추천해주세요.
+              </>
+            ) : (
+              <>
+                6월 1일 정기구독 오픈 정보를 함께 받아보실 수 있도록
+                <br />
+                가까운 분께 사전회원 안내를 공유해주세요.
+              </>
+            )}
           </p>
 
           <button
