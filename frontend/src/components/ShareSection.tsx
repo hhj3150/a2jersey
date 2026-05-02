@@ -128,6 +128,15 @@ export function ShareSection({ launchDate }: ShareSectionProps) {
               >
                 네이버 블로그
               </a>
+              <span className="text-line">·</span>
+              <a
+                href={env.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-soil-dark hover:underline"
+              >
+                YouTube
+              </a>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ interface FooterProps {
   facebookUrl: string
   instagramUrl: string
   naverBlogUrl: string
+  youtubeUrl: string
 }
 
 // 공식 브랜드 아이콘 — 재사용 가능한 inline SVG (의존성 X)
@@ -47,6 +48,14 @@ function NaverBlogIcon({ className }: { className?: string }) {
   )
 }
 
+function YouTubeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.546 15.568V8.432L15.818 12l-6.272 3.568z" />
+    </svg>
+  )
+}
+
 const COMPANY = '농업회사법인 디투오'
 const REPRESENTATIVE = '송영신'
 const BIZ_REG_NO = '266-88-01121'
@@ -60,6 +69,7 @@ export function Footer({
   facebookUrl,
   instagramUrl,
   naverBlogUrl,
+  youtubeUrl,
 }: FooterProps) {
   const year = new Date().getFullYear()
   return (
@@ -128,6 +138,15 @@ export function Footer({
             className="flex h-9 w-9 items-center justify-center rounded-full bg-white border border-line text-mute transition hover:text-soil-dark hover:border-soil-dark/40"
           >
             <NaverBlogIcon className="h-3.5 w-3.5" />
+          </a>
+          <a
+            href={youtubeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="송영신목장 유튜브"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white border border-line text-mute transition hover:text-soil-dark hover:border-soil-dark/40"
+          >
+            <YouTubeIcon className="h-4 w-4" />
           </a>
         </nav>
 

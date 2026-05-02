@@ -85,6 +85,8 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
   const [testNumber, setTestNumber] = useState('')
   const [bypassNightCheck, setBypassNightCheck] = useState(false)
   const [forceDryRun, setForceDryRun] = useState(false)
+  // 동일 메시지 재발송 허용 (광고 피로도 무시) — 기본 false (자동 차단). 운영자 명시적 토글 시에만 발송됨
+  const [allowDuplicate, setAllowDuplicate] = useState(false)
   const [mode, setMode] = useState<'sms' | 'alimtalk'>('sms')
 
   const [preview, setPreview] = useState<BroadcastPreview | null>(null)
@@ -165,6 +167,7 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
       testNumber: testNumber || undefined,
       dryRun: forceDryRun || undefined,
       bypassNightCheck,
+      allowDuplicate,
       mode,
     })
     setSubmitting(false)
@@ -363,6 +366,25 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
                 />
                 <span>야간 발송 우회 (KST 21~08시 강제 발송)</span>
               </label>
+              <label className={`flex items-start gap-2 ${allowDuplicate ? 'text-amber-800' : ''}`}>
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  checked={allowDuplicate}
+                  onChange={(e) => setAllowDuplicate(e.target.checked)}
+                />
+                <span>
+                  <strong>동일 메시지 재발송 허용</strong>
+                  <span className="block text-xs text-stone-600 mt-0.5">
+                    기본은 자동 차단 (광고 피로도·수신거부 방지). 같은 본문을 이미 받은 분은 자동 제외됩니다.
+                    {allowDuplicate && (
+                      <span className="block mt-1 text-amber-700 font-medium">
+                        ⚠ 체크됨 — 이미 받은 분에게도 다시 발송됩니다. 긴급·중요 공지 시에만 사용.
+                      </span>
+                    )}
+                  </span>
+                </span>
+              </label>
             </div>
 
             <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm">
@@ -379,6 +401,11 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
                   <li>이력 ID: #{result.historyId}</li>
                   <li>대상: {result.targetCount}건</li>
                   <li>성공: {result.sentCount}건 / 실패: {result.failedCount}건</li>
+                  {result.dedupExcludedCount !== undefined && result.dedupExcludedCount > 0 && (
+                    <li className="text-blue-700">
+                      🛡 광고 피로도 자동 차단: 같은 메시지를 이미 받은 {result.dedupExcludedCount}명 제외됨
+                    </li>
+                  )}
                   {result.cost !== undefined && <li>실제 차감 비용: ₩{result.cost.toLocaleString()}</li>}
                   {result.groupId && <li>솔라피 그룹: {result.groupId}</li>}
                   {result.errorSummary && <li className="text-red-700">오류: {result.errorSummary}</li>}

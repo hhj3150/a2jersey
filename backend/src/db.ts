@@ -65,6 +65,12 @@ if (!columnExists('leads', 'age_consent_at')) {
 // 1년 보유기간 만료 자동 파기를 빠르게 하기 위한 인덱스
 db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_created_at_asc ON leads(created_at ASC)`)
 
+// 일괄 발송 중복 차단을 위한 수신자 목록 (JSON phone 배열)
+// 옛 발송 이력은 NULL (그 이전 발송에 대해선 중복 체크 불가, 새 발송부터 적용)
+if (!columnExists('broadcast_history', 'recipients')) {
+  db.exec(`ALTER TABLE broadcast_history ADD COLUMN recipients TEXT`)
+}
+
 // 휴대폰 OTP 인증 테이블 — 정통망법 §50 본인 검증 (수신자 본인 동의 입증)
 db.exec(`
   CREATE TABLE IF NOT EXISTS phone_verifications (

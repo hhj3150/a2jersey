@@ -296,6 +296,8 @@ const broadcastSchema = z.object({
   bypassNightCheck: z.boolean().optional().default(false),
   skipAdPrefix: z.boolean().optional().default(false),
   skipOptOut: z.boolean().optional().default(false),
+  // 동일 메시지를 이미 받은 수신자에게도 다시 발송 (광고 피로도 무시 — 긴급·중요 공지 시에만)
+  allowDuplicate: z.boolean().optional().default(false),
   mode: z.enum(['sms', 'alimtalk']).optional().default('sms'),
 })
 
@@ -309,9 +311,16 @@ const solapiCfg = (): SolapiConfig => ({
 
 const insertBroadcast = db.prepare(`
   INSERT INTO broadcast_history
-    (sender, message, target_filter, target_count, sent_count, failed_count, cost, dry_run, group_id, error_summary)
+    (sender, message, target_filter, target_count, sent_count, failed_count, cost, dry_run, group_id, error_summary, recipients)
   VALUES
-    (@sender, @message, @target_filter, @target_count, @sent_count, @failed_count, @cost, @dry_run, @group_id, @error_summary)
+    (@sender, @message, @target_filter, @target_count, @sent_count, @failed_count, @cost, @dry_run, @group_id, @error_summary, @recipients)
+`)
+
+// 같은 메시지(trim된 raw)를 이미 받은 phone 목록 — 광고 피로도 자동 차단
+// dry_run·NULL recipients(옛 발송)는 제외
+const findRecipientsForMessage = db.prepare(`
+  SELECT recipients FROM broadcast_history
+  WHERE message = ? AND recipients IS NOT NULL AND dry_run = 0
 `)
 
 router.get('/broadcast/preview', (req: Request, res: Response) => {
@@ -395,6 +404,39 @@ router.post('/broadcast', async (req: Request, res: Response) => {
     return res.status(400).json({ ok: false, error: '발송 대상이 없습니다 (sms_consent=true 인 가입자가 없거나 필터 조건과 일치하는 대상 없음)' })
   }
 
+  // 광고 피로도 자동 차단: 같은 메시지(raw, trim 후)를 이미 받은 사람 제외.
+  // testNumber는 분기 — 운영자 본인 테스트라 중복 차단하지 않음.
+  // allowDuplicate=true면 운영자가 명시적으로 재발송 결정 — 차단 skip.
+  let dedupExcludedCount = 0
+  if (!parsed.allowDuplicate && !parsed.testNumber) {
+    const trimmedMsg = parsed.message.trim()
+    const prev = findRecipientsForMessage.all(trimmedMsg) as Array<{ recipients: string }>
+    const alreadySent = new Set<string>()
+    for (const r of prev) {
+      try {
+        const arr = JSON.parse(r.recipients) as string[]
+        for (const p of arr) alreadySent.add(p)
+      } catch {
+        // JSON 파싱 실패는 무시 — 옛 데이터 보호
+      }
+    }
+    const before = leads.length
+    leads = leads.filter((l) => !alreadySent.has(l.phone))
+    dedupExcludedCount = before - leads.length
+  }
+
+  if (leads.length === 0) {
+    return res.status(400).json({
+      ok: false,
+      error:
+        dedupExcludedCount > 0
+          ? `발송 대상 ${dedupExcludedCount}명 모두 이미 같은 메시지를 받은 분입니다. 다시 보내려면 "동일 메시지 재발송" 옵션을 선택해주세요.`
+          : '발송 대상이 없습니다',
+      code: dedupExcludedCount > 0 ? 'ALL_ALREADY_RECEIVED' : undefined,
+      dedupExcludedCount,
+    })
+  }
+
   const finalText = composeMarketingText(parsed.message, {
     skipAdPrefix: parsed.skipAdPrefix,
     skipOptOut: parsed.skipOptOut,
@@ -425,9 +467,14 @@ router.post('/broadcast', async (req: Request, res: Response) => {
     }
   }
 
+  // recipients: 실제 발송 시에만 phone 리스트 저장 (다음 중복 체크 기준).
+  // dry_run·testNumber는 중복 체크에서 제외되어야 하므로 NULL.
+  const recipientsJson =
+    !dryRun && !parsed.testNumber ? JSON.stringify(leads.map((l) => l.phone)) : null
+
   const info = insertBroadcast.run({
     sender: 'admin',
-    message: finalText,
+    message: parsed.message.trim(),
     target_filter: parsed.refFilter || (parsed.testNumber ? `test:${parsed.testNumber}` : null),
     target_count: messages.length,
     sent_count: sent,
@@ -436,6 +483,7 @@ router.post('/broadcast', async (req: Request, res: Response) => {
     dry_run: dryRun ? 1 : 0,
     group_id: groupId ?? null,
     error_summary: errorSummary ?? null,
+    recipients: recipientsJson,
   })
 
   return res.json({
@@ -449,6 +497,7 @@ router.post('/broadcast', async (req: Request, res: Response) => {
     groupId,
     errorSummary,
     finalText,
+    dedupExcludedCount,
   })
 })
 

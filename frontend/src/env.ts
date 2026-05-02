@@ -13,4 +13,6 @@ export const env = {
     import.meta.env.VITE_INSTAGRAM_URL || 'https://www.instagram.com/songyoungshin_farm/',
   naverBlogUrl:
     import.meta.env.VITE_NAVER_BLOG_URL || 'https://blog.naver.com/78redmoon',
+  youtubeUrl:
+    import.meta.env.VITE_YOUTUBE_URL || 'https://www.youtube.com/@songyoungshin_farm',
 } as const

@@ -194,6 +194,7 @@ export interface BroadcastResult {
   groupId?: string
   errorSummary?: string
   finalText: string
+  dedupExcludedCount?: number
 }
 
 export interface BroadcastInput {
@@ -205,6 +206,7 @@ export interface BroadcastInput {
   bypassNightCheck?: boolean
   skipAdPrefix?: boolean
   skipOptOut?: boolean
+  allowDuplicate?: boolean
   mode?: 'sms' | 'alimtalk'
 }
 

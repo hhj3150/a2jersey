@@ -32,6 +32,7 @@ function App() {
         facebookUrl={env.facebookUrl}
         instagramUrl={env.instagramUrl}
         naverBlogUrl={env.naverBlogUrl}
+        youtubeUrl={env.youtubeUrl}
       />
     </main>
   )
