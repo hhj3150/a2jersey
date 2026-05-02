@@ -528,6 +528,7 @@ router.get('/analytics', (_req: Request, res: Response) => {
       topInterestPairs: [],
       daily: [],
       byHour: [],
+      lastBroadcast: null,
     })
   }
 
@@ -652,6 +653,29 @@ router.get('/analytics', (_req: Request, res: Response) => {
     `)
     .all() as Array<{ hour: number; count: number }>
 
+  // 마지막 발송 정보 (운영자가 발송 빈도 인지 — "마지막 발송 후 N일")
+  // dry_run 제외 (테스트 발송은 진짜 발송 아님)
+  const lastBroadcastRow = db
+    .prepare(`
+      SELECT sent_at, target_count, sent_count, message
+      FROM broadcast_history
+      WHERE dry_run = 0
+      ORDER BY sent_at DESC
+      LIMIT 1
+    `)
+    .get() as
+    | { sent_at: string; target_count: number; sent_count: number; message: string }
+    | undefined
+
+  const lastBroadcast = lastBroadcastRow
+    ? {
+        sentAt: lastBroadcastRow.sent_at,
+        targetCount: lastBroadcastRow.target_count,
+        sentCount: lastBroadcastRow.sent_count,
+        messagePreview: lastBroadcastRow.message.slice(0, 80),
+      }
+    : null
+
   return res.json({
     ok: true,
     total,
@@ -667,6 +691,7 @@ router.get('/analytics', (_req: Request, res: Response) => {
     topInterestPairs,
     daily,
     byHour,
+    lastBroadcast,
   })
 })
 

@@ -46,7 +46,7 @@ router.post('/register', registerLimiter, (req: Request, res: Response) => {
     if (existing) {
       return res.status(409).json({
         ok: false,
-        error: '이미 등록된 휴대폰 번호입니다',
+        error: '이미 가입하신 고객입니다',
         code: 'DUPLICATE_PHONE',
       })
     }
@@ -98,7 +98,7 @@ router.post('/register', registerLimiter, (req: Request, res: Response) => {
     ) {
       return res.status(409).json({
         ok: false,
-        error: '이미 등록된 휴대폰 번호입니다',
+        error: '이미 가입하신 고객입니다',
         code: 'DUPLICATE_PHONE',
       })
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ComingSoonNotice } from './ComingSoonNotice'
+import { SoftServeModal } from './SoftServeModal'
 import { useDDay } from '../lib/useDDay'
 import { env } from '../env'
 
@@ -28,6 +29,7 @@ interface SubscriptionPreviewProps {
 
 export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
   const [noticeOpen, setNoticeOpen] = useState(false)
+  const [softServeOpen, setSoftServeOpen] = useState(false)
   const dday = useDDay(launchDate)
   const isLive = dday.phase === 'live'
   const launchLabel = formatLaunchShort(launchDate)
@@ -96,17 +98,26 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
           ))}
         </ul>
 
-        <figure className="mt-8">
+        <button
+          type="button"
+          onClick={() => setSoftServeOpen(true)}
+          aria-haspopup="dialog"
+          aria-label="A2 저지 헤이밀크 소프트아이스크림 차별화 자세히 보기"
+          className="group mt-8 block w-full overflow-hidden rounded-2xl shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-soil-dark focus:ring-offset-2 relative"
+        >
           <img
             src="/jersey-softserve.jpg"
             alt="A2 Jersey Hay Milk Ice Cream — 이제 홋카이도까지 갈 필요없습니다. 안성팜랜드에서 만나보세요."
             width="1182"
             height="1388"
-            className="block h-auto w-full rounded-2xl shadow-sm"
+            className="block h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
             loading="lazy"
             decoding="async"
           />
-        </figure>
+          <span className="absolute bottom-3 right-3 rounded-full bg-ink/85 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+            왜 다른가 →
+          </span>
+        </button>
 
         <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-mute">
           {POLICY_NOTES.map((n) => (
@@ -141,6 +152,11 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
         launchLabel={launchLabel}
         smartstoreUrl={env.smartstoreUrl}
         onSignupClick={scrollToSignup}
+      />
+
+      <SoftServeModal
+        open={softServeOpen}
+        onClose={() => setSoftServeOpen(false)}
       />
     </section>
   )

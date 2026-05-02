@@ -269,6 +269,12 @@ export interface AnalyticsResponse {
   }>
   daily: Array<{ date: string; count: number }>
   byHour: Array<{ hour: number; count: number }>
+  lastBroadcast: {
+    sentAt: string
+    targetCount: number
+    sentCount: number
+    messagePreview: string
+  } | null
 }
 
 export async function fetchAnalytics(

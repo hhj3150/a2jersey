@@ -26,6 +26,48 @@ const eucKrBytes = (s: string): number => {
 
 const COST_CONFIRM_THRESHOLD = 50_000
 
+// 운영자 편의: 자주 보낼 메시지 템플릿 — "뭘 보내지" 고민 없이 한 번 클릭으로 본문 채움
+// 각 템플릿은 (광고) prefix·수신거부 안내 자동 추가 전 본문. 모든 변수는 ◯ 또는 [날짜] 등으로 표기해서
+// 운영자가 발송 전에 반드시 채우도록 유도.
+const MESSAGE_TEMPLATES: { key: string; label: string; body: string }[] = [
+  {
+    key: 'subscription-launch',
+    label: '🎉 정기구독 오픈 안내',
+    body:
+      '[송영신목장] 6월 1일 A2 저지 우유 정기구독이 오픈됩니다.\n사전회원 한정 ○% 추가 할인.\n▶ https://smartstore.naver.com/a2milk_hay',
+  },
+  {
+    key: 'subscription-followup',
+    label: '🔁 미전환자 follow-up',
+    body:
+      '[송영신목장] A2 저지 헤이밀크 정기구독, 아직 망설이고 계세요?\n사전회원만의 ○% 할인 쿠폰을 ◯◯/◯◯까지 사용 가능합니다.\n▶ https://smartstore.naver.com/a2milk_hay',
+  },
+  {
+    key: 'new-product',
+    label: '🆕 신상품 출시',
+    body:
+      '[송영신목장] 신상품 ◯◯◯이 새롭게 출시되었습니다.\n정기구독자 한정 ○% 할인 적용 중.\n▶ https://smartstore.naver.com/a2milk_hay',
+  },
+  {
+    key: 'season-event',
+    label: '🍦 시즌 이벤트',
+    body:
+      '[송영신목장] ◯◯ 시즌 한정 이벤트가 시작되었습니다.\n안성팜랜드 카페에서 한정 메뉴 ◯◯◯을 만나보세요.\n자세히 ▶ https://www.a2jerseymilk.com',
+  },
+  {
+    key: 'subscription-discount',
+    label: '💰 정기구독 할인 쿠폰',
+    body:
+      '[송영신목장] 회원 감사 정기구독 ○% 추가 할인 쿠폰을 보내드립니다.\n사용기한 ◯◯/◯◯까지.\n▶ https://smartstore.naver.com/a2milk_hay',
+  },
+  {
+    key: 'farm-news',
+    label: '🐄 농장 소식',
+    body:
+      '[송영신목장] 안성 목장의 ◯월 소식을 전해드립니다.\n${브랜드 스토리·수확 등 한 줄 요약}\n자세히 ▶ https://www.a2jerseymilk.com',
+  },
+]
+
 const formatDate = (iso: string): string => {
   const d = new Date(iso.replace(' ', 'T') + 'Z')
   if (Number.isNaN(d.getTime())) return iso
@@ -228,6 +270,34 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
 
             <div>
               <label className="text-sm font-medium text-stone-700 block mb-1">메시지 본문</label>
+              <details className="mb-2">
+                <summary className="cursor-pointer text-xs text-stone-600 hover:text-stone-900 select-none">
+                  📋 템플릿 불러오기 (클릭 시 본문이 교체됩니다)
+                </summary>
+                <div className="mt-2 grid grid-cols-2 gap-1.5">
+                  {MESSAGE_TEMPLATES.map((t) => (
+                    <button
+                      key={t.key}
+                      type="button"
+                      onClick={() => {
+                        if (
+                          message.trim().length > 0 &&
+                          !confirm('현재 작성한 본문이 템플릿으로 교체됩니다. 진행할까요?')
+                        )
+                          return
+                        setMessage(t.body)
+                      }}
+                      className="text-left text-xs px-2 py-1.5 border border-stone-200 rounded hover:bg-stone-50 hover:border-stone-300"
+                      title={t.body}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-stone-500">
+                  ◯ / ◯◯ / [브래킷] 부분은 발송 전에 실제 값으로 반드시 변경하세요.
+                </p>
+              </details>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}

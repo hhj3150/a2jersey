@@ -68,6 +68,18 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
             : `${launchLabel} 오픈 알림 받기`}
           <span className="ml-1.5" aria-hidden>{isLaunched ? '→' : ''}</span>
         </button>
+
+        {isLaunched && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={onCtaClick}
+              className="text-sm text-mute underline-offset-4 hover:underline hover:text-soil-dark"
+            >
+              신상품·이벤트 소식 받기 →
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )

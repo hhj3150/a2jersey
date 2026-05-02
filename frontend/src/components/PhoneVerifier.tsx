@@ -19,11 +19,19 @@ interface Props {
   isVerified: boolean
   onVerified: (token: string) => void
   onReset: () => void
+  onDuplicate?: () => void
 }
 
 const PHONE_REGEX = /^01[016789]-?\d{3,4}-?\d{4}$/
 
-export function PhoneVerifier({ phone, phoneValid, isVerified, onVerified, onReset }: Props) {
+export function PhoneVerifier({
+  phone,
+  phoneValid,
+  isVerified,
+  onVerified,
+  onReset,
+  onDuplicate,
+}: Props) {
   const [status, setStatus] = useState<Status>(
     isVerified ? { kind: 'verified' } : { kind: 'idle' },
   )
@@ -69,6 +77,11 @@ export function PhoneVerifier({ phone, phoneValid, isVerified, onVerified, onRes
     const result = await postVerifySendCode(phone)
     if (!result.ok) {
       setStatus({ kind: 'idle' })
+      // 이미 가입한 번호 — 부모에게 알림 (친근한 모달 표시), 인라인 에러 안 띄움
+      if (result.code === 'DUPLICATE_PHONE' && onDuplicate) {
+        onDuplicate()
+        return
+      }
       setError(result.error || '발송에 실패했습니다')
       return
     }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -9,8 +9,9 @@ import {
 import { postRegister, getRefFromUrl } from '../lib/api'
 import { AddressFinder, type AddressValue } from './AddressFinder'
 import { PhoneVerifier } from './PhoneVerifier'
+import { useDDay } from '../lib/useDDay'
 
-function SuccessPanel() {
+function SuccessPanel({ isLaunched }: { isLaunched: boolean }) {
   return (
     <section id="signup" className="section bg-cream" aria-live="polite">
       <div className="container-app">
@@ -19,12 +20,22 @@ function SuccessPanel() {
             ✓
           </div>
           <h2 className="text-2xl font-semibold tracking-tight-kr text-ink">
-            사전회원 등록 완료
+            {isLaunched ? '소식받기 신청 완료' : '사전회원 등록 완료'}
           </h2>
           <p className="mt-4 text-base text-mute leading-relaxed max-w-reading mx-auto">
-            송영신목장 A2 Jersey Hay Milk 사전회원으로 등록되었습니다.
-            <br />
-            6월 1일 정기구독 오픈 시 가장 먼저 안내드리겠습니다.
+            {isLaunched ? (
+              <>
+                송영신목장 A2 Jersey Hay Milk 소식받기에 등록되었습니다.
+                <br />
+                신상품·이벤트·할인 소식을 가장 먼저 SMS로 안내드리겠습니다.
+              </>
+            ) : (
+              <>
+                송영신목장 A2 Jersey Hay Milk 사전회원으로 등록되었습니다.
+                <br />
+                6월 1일 정기구독 오픈 시 가장 먼저 안내드리겠습니다.
+              </>
+            )}
           </p>
 
           <div className="mt-8 rounded-xl bg-cream/60 border border-line p-4 text-left">
@@ -38,7 +49,11 @@ function SuccessPanel() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-soil-dark mt-0.5">•</span>
-                <span>6월 1일 정기구독 오픈 안내 (공식 홈페이지·문자)</span>
+                <span>
+                  {isLaunched
+                    ? '신상품·시즌 이벤트·정기구독 할인 안내 (월 1~2회)'
+                    : '6월 1일 정기구독 오픈 안내 (공식 홈페이지·문자)'}
+                </span>
               </li>
             </ul>
           </div>
@@ -48,14 +63,123 @@ function SuccessPanel() {
   )
 }
 
+function ConfirmModal({
+  open,
+  variant,
+  onClose,
+}: {
+  open: boolean
+  variant: 'success-pre' | 'success-live' | 'duplicate'
+  onClose: () => void
+}) {
+  // ESC 키로 닫기
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [open, onClose])
+
+  if (!open) return null
+
+  const config = {
+    'success-pre': {
+      icon: '✓',
+      iconClass: 'bg-soil/10 text-soil-dark',
+      title: '사전회원 등록이 완료되었습니다',
+      body: (
+        <>
+          6월 1일 정기구독 오픈 시
+          <br />
+          가장 먼저 SMS로 안내드리겠습니다.
+        </>
+      ),
+    },
+    'success-live': {
+      icon: '✓',
+      iconClass: 'bg-soil/10 text-soil-dark',
+      title: '알림받기가 신청되었습니다',
+      body: (
+        <>
+          송영신목장 신상품·이벤트·할인 소식을
+          <br />
+          SMS로 가장 먼저 보내드릴게요.
+        </>
+      ),
+    },
+    duplicate: {
+      icon: 'ℹ',
+      iconClass: 'bg-blue-50 text-blue-700',
+      title: '이미 가입하신 고객입니다',
+      body: (
+        <>
+          이 휴대폰 번호로는 이미 알림받기가 신청되어 있어요.
+          <br />
+          신상품·이벤트 소식이 들어오면 SMS로 자동 안내드릴게요.
+        </>
+      ),
+    },
+  }[variant]
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-modal-title"
+    >
+      <div
+        className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full text-2xl ${config.iconClass}`}
+          aria-hidden
+        >
+          {config.icon}
+        </div>
+        <h3
+          id="confirm-modal-title"
+          className="text-lg font-bold text-ink tracking-tight-kr"
+        >
+          {config.title}
+        </h3>
+        <p className="mt-3 text-sm text-mute leading-relaxed">{config.body}</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="btn-primary w-full mt-6"
+        >
+          확인
+        </button>
+      </div>
+    </div>
+  )
+}
+
 type SubmitState =
   | { kind: 'idle' }
   | { kind: 'submitting' }
   | { kind: 'success'; id: number }
   | { kind: 'error'; message: string }
 
-export function SignupForm() {
+type ModalState =
+  | { kind: 'closed' }
+  | { kind: 'success' }
+  | { kind: 'duplicate' }
+
+interface SignupFormProps {
+  launchDate: string
+}
+
+export function SignupForm({ launchDate }: SignupFormProps) {
+  const dday = useDDay(launchDate)
+  const isLaunched = dday.phase === 'live' || dday.phase === 'today'
   const [state, setState] = useState<SubmitState>({ kind: 'idle' })
+  const [modal, setModal] = useState<ModalState>({ kind: 'closed' })
 
   const {
     register,
@@ -104,6 +228,7 @@ export function SignupForm() {
 
     if (result.ok) {
       setState({ kind: 'success', id: result.id })
+      setModal({ kind: 'success' })
       requestAnimationFrame(() => {
         document
           .getElementById('signup')
@@ -113,7 +238,8 @@ export function SignupForm() {
     }
 
     if (result.code === 'DUPLICATE_PHONE') {
-      setError('phone', { type: 'manual', message: result.error })
+      // 운영 정책: 중복 가입자에겐 친근한 안내만 + 폼은 그대로 둠 (refresh 안 함)
+      setModal({ kind: 'duplicate' })
       setState({ kind: 'idle' })
       return
     }
@@ -158,7 +284,14 @@ export function SignupForm() {
 
   if (state.kind === 'success') {
     return (
-      <SuccessPanel />
+      <>
+        <SuccessPanel isLaunched={isLaunched} />
+        <ConfirmModal
+          open={modal.kind === 'success'}
+          variant={isLaunched ? 'success-live' : 'success-pre'}
+          onClose={() => setModal({ kind: 'closed' })}
+        />
+      </>
     )
   }
 
@@ -167,12 +300,22 @@ export function SignupForm() {
   return (
     <section id="signup" className="section bg-cream" aria-labelledby="signup-title">
       <div className="container-app">
-        <p className="section-eyebrow text-center">Sign up</p>
+        <p className="section-eyebrow text-center">
+          {isLaunched ? 'News' : 'Sign up'}
+        </p>
         <h2 id="signup-title" className="section-title text-center">
-          정기구독 오픈 알림 받기
+          {isLaunched ? '송영신목장 소식 받기' : '정기구독 오픈 알림 받기'}
         </h2>
         <p className="mt-3 text-sm text-mute text-center max-w-reading mx-auto">
-          이름과 연락처만 남기시면 6월 1일 오픈 즉시 가장 먼저 안내드립니다.
+          {isLaunched ? (
+            <>
+              신상품·시즌 이벤트·정기구독 할인 소식을 SMS로 가장 먼저 안내드립니다.
+              <br />
+              월 1~2회, 광고 표기 + 080 무료 수신거부 포함.
+            </>
+          ) : (
+            <>이름과 연락처만 남기시면 6월 1일 오픈 즉시 가장 먼저 안내드립니다.</>
+          )}
         </p>
 
         <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5">
@@ -212,6 +355,7 @@ export function SignupForm() {
               onReset={() => {
                 setValue('verificationToken', '', { shouldValidate: false })
               }}
+              onDuplicate={() => setModal({ kind: 'duplicate' })}
             />
             {errors.verificationToken && (
               <p className="field-error">{errors.verificationToken.message}</p>
@@ -362,10 +506,13 @@ export function SignupForm() {
                 {...register('smsConsent')}
               />
               <span className="text-sm text-ink leading-relaxed">
-                <span className="font-semibold text-mute">[선택]</span> 정기구독 오픈 안내 및 마케팅 문자(광고) 수신에 동의합니다.
+                <span className="font-semibold text-mute">[선택]</span>{' '}
+                {isLaunched
+                  ? '신상품·이벤트·할인 안내 등 마케팅 문자(광고) 수신에 동의합니다.'
+                  : '정기구독 오픈 안내 및 마케팅 문자(광고) 수신에 동의합니다.'}
                 <br />
                 <span className="text-xs text-mute leading-relaxed block mt-1">
-                  · 미동의 시에도 가입은 가능하나 오픈 안내 문자를 받지 못할 수 있습니다.
+                  · 미동의 시에도 가입은 가능하나 소식 안내 문자를 받지 못할 수 있습니다.
                   <br />
                   · 야간(KST 21:00~08:00)에는 발송하지 않으며, 메시지마다 080 무료 수신거부 번호가 포함됩니다.
                 </span>
@@ -406,10 +553,20 @@ export function SignupForm() {
             disabled={isSubmitting}
             className="btn-primary w-full"
           >
-            {isSubmitting ? '등록 중…' : '사전회원 등록하기'}
+            {isSubmitting
+              ? '등록 중…'
+              : isLaunched
+                ? '소식받기 신청하기'
+                : '사전회원 등록하기'}
           </button>
         </form>
       </div>
+
+      <ConfirmModal
+        open={modal.kind === 'duplicate'}
+        variant="duplicate"
+        onClose={() => setModal({ kind: 'closed' })}
+      />
     </section>
   )
 }

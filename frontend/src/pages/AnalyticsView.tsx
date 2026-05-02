@@ -197,6 +197,64 @@ function CrossTab({
   )
 }
 
+function daysSince(iso: string): number {
+  const sent = new Date(iso.replace(' ', 'T') + 'Z').getTime()
+  if (Number.isNaN(sent)) return 0
+  return Math.max(0, Math.floor((Date.now() - sent) / 86_400_000))
+}
+
+function BroadcastStatus({
+  lastBroadcast,
+}: {
+  lastBroadcast: AnalyticsResponse['lastBroadcast']
+}) {
+  // 운영자 발송 빈도 가시성 — 월 1~2회 권장 (가입자가 잊지 않을 빈도, 광고 피로도 적음)
+  const RECOMMEND_MIN = 21 // 3주 미만이면 너무 잦음
+  const RECOMMEND_MAX = 35 // 5주 초과면 너무 뜸함
+  if (!lastBroadcast) {
+    return (
+      <div className="bg-white border border-amber-300 rounded-lg p-4 flex items-start gap-3">
+        <div className="text-2xl" aria-hidden>📨</div>
+        <div className="flex-1">
+          <div className="text-sm font-semibold text-stone-900">아직 일괄 발송 이력이 없습니다</div>
+          <div className="text-xs text-stone-600 mt-1">
+            상단 "📨 일괄 발송"으로 첫 메시지를 보낼 준비가 되어 있어요.
+          </div>
+        </div>
+      </div>
+    )
+  }
+  const days = daysSince(lastBroadcast.sentAt)
+  const tone =
+    days < RECOMMEND_MIN
+      ? { color: 'text-blue-700', label: '최근 발송함', hint: '광고 피로도 주의 — 다음 발송은 약 3~5주 간격 권장' }
+      : days <= RECOMMEND_MAX
+        ? { color: 'text-green-700', label: '적정 간격', hint: '권장 발송 주기 안에 있어요' }
+        : { color: 'text-amber-700', label: '발송 뜸함', hint: '신상품·이벤트 소식이 있으면 발송 권장' }
+  return (
+    <div className="bg-white border border-stone-200 rounded-lg p-4">
+      <div className="flex items-start gap-3">
+        <div className="text-2xl" aria-hidden>📨</div>
+        <div className="flex-1">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-sm font-semibold text-stone-900">
+              마지막 발송 후 {days}일
+            </span>
+            <span className={`text-xs font-medium ${tone.color}`}>· {tone.label}</span>
+          </div>
+          <div className="text-xs text-stone-500 mt-0.5">
+            {lastBroadcast.sentAt} · 대상 {lastBroadcast.targetCount}명 / 발송 성공 {lastBroadcast.sentCount}명
+          </div>
+          <div className="text-xs text-stone-600 mt-2 italic line-clamp-2">
+            "{lastBroadcast.messagePreview}…"
+          </div>
+          <div className="text-xs text-stone-500 mt-2">{tone.hint}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Insight({ data }: { data: AnalyticsResponse }) {
   if (data.total === 0) return null
   const lines: string[] = []
@@ -289,6 +347,7 @@ export function AnalyticsView({ token }: { token: string }) {
 
   return (
     <div className="space-y-4">
+      <BroadcastStatus lastBroadcast={data.lastBroadcast} />
       <Insight data={data} />
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
