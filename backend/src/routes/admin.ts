@@ -27,6 +27,14 @@ const adminLimiter = rateLimit({
 })
 
 router.use(adminLimiter)
+// 관리자 응답은 항상 신선해야 함 — 브라우저/CDN 캐시 차단
+// (캐시되면 삭제·신규가입·페이지네이션이 옛 응답을 보여줌)
+router.use((_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
+  next()
+})
 // /backup 만 Bearer 토큰 허용, 그 외는 Basic Auth 필수
 router.use((req, res, next) => {
   if (req.path === '/backup') return requireAdminOrBackupToken(req, res, next)

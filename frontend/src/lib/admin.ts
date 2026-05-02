@@ -74,6 +74,7 @@ export async function fetchLeads(params: {
   try {
     const res = await fetch(`${env.apiUrl}/api/admin/leads?${qs.toString()}`, {
       headers: headers(params.token),
+      cache: 'no-store',
     })
     const data = await res.json()
     return data
@@ -123,6 +124,7 @@ export async function downloadCsv(token: string): Promise<AdminError | null> {
   try {
     const res = await fetch(`${env.apiUrl}/api/admin/export.csv`, {
       headers: headers(token),
+      cache: 'no-store',
     })
     if (!res.ok) {
       const data = (await res.json().catch(() => null)) as AdminError | null
@@ -172,7 +174,7 @@ export async function fetchBroadcastPreview(
   try {
     const res = await fetch(
       `${env.apiUrl}/api/admin/broadcast/preview?${qs.toString()}`,
-      { headers: headers(token) },
+      { headers: headers(token), cache: 'no-store' },
     )
     return await res.json()
   } catch (err) {
@@ -244,6 +246,7 @@ export async function fetchBroadcastHistory(
   try {
     const res = await fetch(`${env.apiUrl}/api/admin/broadcasts`, {
       headers: headers(token),
+      cache: 'no-store',
     })
     return await res.json()
   } catch (err) {
