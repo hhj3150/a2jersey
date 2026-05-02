@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import {
   buildBasicToken,
   clearAdminToken,
@@ -248,11 +248,11 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
   const [downloading, setDownloading] = useState(false)
   const [showBroadcast, setShowBroadcast] = useState(false)
 
-  const load = async () => {
-    setLoading(true)
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true)
     setError(null)
     const res = await fetchLeads({ token, page, pageSize, q, ref: refFilter })
-    setLoading(false)
+    if (!silent) setLoading(false)
     if (!res.ok) {
       setError(res.error)
       if (res.error === 'Unauthorized') onLogout()
@@ -261,9 +261,26 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
     setData(res)
   }
 
+  // load의 최신 클로저를 ref에 두어 auto-refresh가 stale 값을 쓰지 않게 함
+  const loadRef = useRef(load)
+  loadRef.current = load
+
   useEffect(() => {
     load()
   }, [page, q, refFilter])
+
+  // 자동 갱신: 30초마다 + 탭 visible 전환 시 (조용히)
+  useEffect(() => {
+    const tick = () => {
+      if (document.visibilityState === 'visible') loadRef.current(true)
+    }
+    const interval = window.setInterval(tick, 30_000)
+    document.addEventListener('visibilitychange', tick)
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', tick)
+    }
+  }, [])
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault()
@@ -328,6 +345,15 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
             <p className="text-xs text-stone-500">사전회원 모집 대시보드</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => load()}
+              disabled={loading}
+              className="px-3 py-1.5 border border-stone-300 text-stone-700 text-sm rounded-md hover:bg-stone-100 disabled:opacity-50"
+              title="목록 다시 불러오기"
+            >
+              {loading ? '⟳ 갱신 중' : '↻ 새로고침'}
+            </button>
             <button
               type="button"
               onClick={() => setShowBroadcast(true)}
