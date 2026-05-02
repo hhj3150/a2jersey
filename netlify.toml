@@ -27,16 +27,21 @@
     # 'unsafe-eval': Daum postcode.v2.js 가 사용하는 eval 허용
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://t1.daumcdn.net https://*.daumcdn.net https://*.kakaocdn.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data: https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; connect-src 'self' https://*.up.railway.app https://*.railway.app https://api.solapi.com; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://postcode.map.daum.net https://*.daum.net https://postcode.map.kakao.com https://*.kakao.com; form-action 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests"
 
-# /admin: 검색엔진 색인 차단 + 더 엄격
+# /admin: 검색엔진 색인 차단 + HTML 캐시 차단
+# (SPA fallback으로 index.html이 served되지만 헤더 매칭은 URL 기준이라
+#  /admin·/admin/* 에도 명시적으로 Cache-Control no-store 필요.
+#  없으면 브라우저가 옛 admin HTML을 보유 → 옛 번들 참조 → 새 기능 안 보임)
 [[headers]]
   for = "/admin"
   [headers.values]
-    X-Robots-Tag = "noindex, nofollow, noarchive"
+    X-Robots-Tag  = "noindex, nofollow, noarchive"
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
 
 [[headers]]
   for = "/admin/*"
   [headers.values]
-    X-Robots-Tag = "noindex, nofollow, noarchive"
+    X-Robots-Tag  = "noindex, nofollow, noarchive"
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
 
 # index.html: 절대 캐시 금지 (iOS Safari가 옛 번들 가리키는 옛 HTML을 보유하는 케이스 차단)
 # 해시된 JS/CSS는 자동으로 영구 캐시되므로 성능 영향 없음
