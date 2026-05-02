@@ -27,7 +27,12 @@ function App() {
       <SignupForm launchDate={env.launchDate} />
       <ShareSection launchDate={env.launchDate} />
       <FAQ />
-      <Footer homepageUrl={env.brandHomepage} />
+      <Footer
+        homepageUrl={env.brandHomepage}
+        facebookUrl={env.facebookUrl}
+        instagramUrl={env.instagramUrl}
+        naverBlogUrl={env.naverBlogUrl}
+      />
     </main>
   )
 }

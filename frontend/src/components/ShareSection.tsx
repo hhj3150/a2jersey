@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDDay } from '../lib/useDDay'
+import { env } from '../env'
 
 const buildShareUrl = (): string => {
   if (typeof window === 'undefined') return 'https://a2jersey-pre.netlify.app'
@@ -97,6 +98,38 @@ export function ShareSection({ launchDate }: ShareSectionProps) {
           <p className="mt-4 text-xs text-mute">
             모바일에서는 카카오톡 등 메신저를 선택해 친구 주소록에서 직접 보낼 수 있습니다.
           </p>
+
+          <div className="mt-6 pt-5 border-t border-line/60">
+            <p className="text-xs text-mute mb-2">송영신목장 소식 채널</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
+              <a
+                href={env.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-soil-dark hover:underline"
+              >
+                Facebook
+              </a>
+              <span className="text-line">·</span>
+              <a
+                href={env.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-soil-dark hover:underline"
+              >
+                Instagram
+              </a>
+              <span className="text-line">·</span>
+              <a
+                href={env.naverBlogUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-soil-dark hover:underline"
+              >
+                네이버 블로그
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
