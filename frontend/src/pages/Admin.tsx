@@ -103,10 +103,16 @@ function LoginScreen({ onSuccess }: { onSuccess: (token: string) => void }) {
 
 function LeadsTable({
   items,
+  total,
+  page,
+  pageSize,
   onDelete,
   onPatch,
 }: {
   items: AdminLead[]
+  total: number
+  page: number
+  pageSize: number
   onDelete: (id: number) => void
   onPatch: (id: number, patch: { memo?: string | null; status?: LeadStatus }) => void
 }) {
@@ -123,7 +129,8 @@ function LeadsTable({
       <table className="min-w-full text-sm">
         <thead className="bg-stone-50 text-stone-700">
           <tr className="whitespace-nowrap">
-            <th className="px-3 py-2 text-left">ID</th>
+            <th className="px-3 py-2 text-left">번호</th>
+            <th className="px-3 py-2 text-left text-stone-400 text-xs font-normal">DB ID</th>
             <th className="px-3 py-2 text-left">등록일시</th>
             <th className="px-3 py-2 text-left">이름</th>
             <th className="px-3 py-2 text-left">휴대폰</th>
@@ -138,9 +145,12 @@ function LeadsTable({
           </tr>
         </thead>
         <tbody>
-          {items.map((row) => (
+          {items.map((row, index) => {
+            const seq = total - ((page - 1) * pageSize + index)
+            return (
             <tr key={row.id} className="border-t border-stone-100 hover:bg-stone-50 align-top">
-              <td className="px-3 py-2 text-stone-500 tabular-nums">{row.id}</td>
+              <td className="px-3 py-2 font-medium text-stone-900 tabular-nums">{seq}</td>
+              <td className="px-3 py-2 text-stone-400 text-xs tabular-nums">{row.id}</td>
               <td className="px-3 py-2 tabular-nums whitespace-nowrap">{formatDate(row.createdAt)}</td>
               <td className="px-3 py-2 font-medium whitespace-nowrap">{row.name}</td>
               <td className="px-3 py-2 tabular-nums whitespace-nowrap">{formatPhone(row.phone)}</td>
@@ -216,7 +226,8 @@ function LeadsTable({
                 </button>
               </td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
     </div>
@@ -413,7 +424,14 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
           </div>
         ) : data ? (
           <>
-            <LeadsTable items={data.items} onDelete={handleDelete} onPatch={handlePatch} />
+            <LeadsTable
+              items={data.items}
+              total={data.total}
+              page={data.page}
+              pageSize={data.pageSize}
+              onDelete={handleDelete}
+              onPatch={handlePatch}
+            />
 
             <div className="flex items-center justify-between text-sm">
               <div className="text-stone-500">
