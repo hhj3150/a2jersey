@@ -497,4 +497,177 @@ router.get('/stats', (_req: Request, res: Response) => {
   })
 })
 
+// 영업·마케팅 의사결정용 분석 보고서 — 한 번 호출로 전체 인사이트 반환
+const normalizeProvince = (s: string): string => {
+  let n = s
+  if (n.endsWith('특별자치도')) n = n.slice(0, -5)
+  else if (n.endsWith('특별자치시')) n = n.slice(0, -5)
+  else if (n.endsWith('특별시')) n = n.slice(0, -3)
+  else if (n.endsWith('광역시')) n = n.slice(0, -3)
+  else if (n.endsWith('도')) n = n.slice(0, -1)
+  return n || s
+}
+
+router.get('/analytics', (_req: Request, res: Response) => {
+  const totalRow = db.prepare('SELECT COUNT(*) AS c FROM leads').get() as { c: number }
+  const total = totalRow.c
+
+  if (total === 0) {
+    return res.json({
+      ok: true,
+      total: 0,
+      smsConsentRate: 0,
+      avgInterestsPerLead: 0,
+      multiInterestRate: 0,
+      byInterest: [],
+      byProvince: [],
+      byCity: [],
+      byRef: [],
+      interestByProvince: [],
+      interestByRef: [],
+      topInterestPairs: [],
+      daily: [],
+      byHour: [],
+    })
+  }
+
+  const allLeads = db
+    .prepare('SELECT region, interests, sms_consent, ref FROM leads')
+    .all() as Array<{
+      region: string
+      interests: string
+      sms_consent: 0 | 1
+      ref: string
+    }>
+
+  const smsCount = allLeads.filter((l) => l.sms_consent === 1).length
+
+  const interestCounts: Record<string, number> = {}
+  const pairCounts: Record<string, number> = {}
+  const provinceCounts: Record<string, number> = {}
+  const cityCounts: Record<string, number> = {}
+  const refCounts: Record<string, number> = {}
+  const provinceInterest: Record<string, Record<string, number>> = {}
+  const refInterest: Record<string, Record<string, number>> = {}
+
+  let totalSelections = 0
+  let multiCount = 0
+
+  for (const l of allLeads) {
+    const items = parseInterests(l.interests)
+    if (items.length >= 2) multiCount++
+    totalSelections += items.length
+
+    for (const i of items) {
+      interestCounts[i] = (interestCounts[i] ?? 0) + 1
+    }
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const sorted = [items[i]!, items[j]!].sort()
+        const key = `${sorted[0]}|||${sorted[1]}`
+        pairCounts[key] = (pairCounts[key] ?? 0) + 1
+      }
+    }
+
+    refCounts[l.ref] = (refCounts[l.ref] ?? 0) + 1
+    if (!refInterest[l.ref]) refInterest[l.ref] = {}
+    for (const i of items) {
+      refInterest[l.ref]![i] = (refInterest[l.ref]![i] ?? 0) + 1
+    }
+
+    if (l.region) {
+      const parts = l.region.split(/\s+/).filter(Boolean)
+      const provinceRaw = parts[0] || '미분류'
+      const province = normalizeProvince(provinceRaw)
+      const city = parts.slice(0, 2).join(' ') || province
+      provinceCounts[province] = (provinceCounts[province] ?? 0) + 1
+      cityCounts[city] = (cityCounts[city] ?? 0) + 1
+      if (!provinceInterest[province]) provinceInterest[province] = {}
+      for (const i of items) {
+        provinceInterest[province]![i] = (provinceInterest[province]![i] ?? 0) + 1
+      }
+    }
+  }
+
+  const labelOf = (k: string): string => interestLabels[k as Interest] ?? k
+
+  const byInterest = Object.entries(interestCounts)
+    .map(([k, c]) => ({ key: k, label: labelOf(k), count: c, share: c / total }))
+    .sort((a, b) => b.count - a.count)
+
+  const topInterestPairs = Object.entries(pairCounts)
+    .map(([k, c]) => {
+      const [a, b] = k.split('|||')
+      return { a: a!, aLabel: labelOf(a!), b: b!, bLabel: labelOf(b!), count: c }
+    })
+    .sort((x, y) => y.count - x.count)
+    .slice(0, 5)
+
+  const byProvince = Object.entries(provinceCounts)
+    .map(([p, c]) => ({ province: p, count: c, share: c / total }))
+    .sort((a, b) => b.count - a.count)
+
+  const byCity = Object.entries(cityCounts)
+    .map(([c, n]) => ({ city: c, count: n }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+
+  const byRef = Object.entries(refCounts)
+    .map(([r, c]) => ({ ref: r, count: c, share: c / total }))
+    .sort((a, b) => b.count - a.count)
+
+  const interestByProvince = byProvince.slice(0, 5).map((p) => ({
+    province: p.province,
+    total: p.count,
+    interests: Object.entries(provinceInterest[p.province] ?? {})
+      .map(([k, c]) => ({ key: k, label: labelOf(k), count: c }))
+      .sort((a, b) => b.count - a.count),
+  }))
+
+  const interestByRef = byRef.map((r) => ({
+    ref: r.ref,
+    total: r.count,
+    interests: Object.entries(refInterest[r.ref] ?? {})
+      .map(([k, c]) => ({ key: k, label: labelOf(k), count: c }))
+      .sort((a, b) => b.count - a.count),
+  }))
+
+  // KST 변환을 SQL에서 직접 — created_at은 UTC로 저장됨
+  const daily = db
+    .prepare(`
+      SELECT date(created_at, '+9 hours') AS date, COUNT(*) AS count
+      FROM leads
+      WHERE created_at >= datetime('now', '-30 days')
+      GROUP BY date(created_at, '+9 hours')
+      ORDER BY date(created_at, '+9 hours')
+    `)
+    .all() as Array<{ date: string; count: number }>
+
+  const byHour = db
+    .prepare(`
+      SELECT CAST(strftime('%H', created_at, '+9 hours') AS INTEGER) AS hour, COUNT(*) AS count
+      FROM leads
+      GROUP BY hour
+      ORDER BY hour
+    `)
+    .all() as Array<{ hour: number; count: number }>
+
+  return res.json({
+    ok: true,
+    total,
+    smsConsentRate: smsCount / total,
+    avgInterestsPerLead: totalSelections / total,
+    multiInterestRate: multiCount / total,
+    byInterest,
+    byProvince,
+    byCity,
+    byRef,
+    interestByProvince,
+    interestByRef,
+    topInterestPairs,
+    daily,
+    byHour,
+  })
+})
+
 export default router

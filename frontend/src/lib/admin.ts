@@ -240,6 +240,52 @@ export interface BroadcastHistoryItem {
   errorSummary: string | null
 }
 
+export interface AnalyticsResponse {
+  ok: true
+  total: number
+  smsConsentRate: number
+  avgInterestsPerLead: number
+  multiInterestRate: number
+  byInterest: Array<{ key: string; label: string; count: number; share: number }>
+  byProvince: Array<{ province: string; count: number; share: number }>
+  byCity: Array<{ city: string; count: number }>
+  byRef: Array<{ ref: string; count: number; share: number }>
+  interestByProvince: Array<{
+    province: string
+    total: number
+    interests: Array<{ key: string; label: string; count: number }>
+  }>
+  interestByRef: Array<{
+    ref: string
+    total: number
+    interests: Array<{ key: string; label: string; count: number }>
+  }>
+  topInterestPairs: Array<{
+    a: string
+    aLabel: string
+    b: string
+    bLabel: string
+    count: number
+  }>
+  daily: Array<{ date: string; count: number }>
+  byHour: Array<{ hour: number; count: number }>
+}
+
+export async function fetchAnalytics(
+  token: string,
+): Promise<AnalyticsResponse | AdminError> {
+  try {
+    const res = await fetch(`${env.apiUrl}/api/admin/analytics`, {
+      headers: headers(token),
+      cache: 'no-store',
+    })
+    return await res.json()
+  } catch (err) {
+    console.error('[fetchAnalytics] error:', err)
+    return { ok: false, error: '네트워크 오류' }
+  }
+}
+
 export async function fetchBroadcastHistory(
   token: string,
 ): Promise<{ ok: true; items: BroadcastHistoryItem[] } | AdminError> {

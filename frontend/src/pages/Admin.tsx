@@ -14,7 +14,10 @@ import {
   type LeadsResponse,
 } from '../lib/admin'
 import { interestOptions } from '../lib/schemas'
+import { AnalyticsView } from './AnalyticsView'
 import { BroadcastModal } from './BroadcastModal'
+
+type AdminTab = 'list' | 'analytics'
 
 const STATUS_OPTIONS: { value: LeadStatus; label: string; tone: string }[] = [
   { value: 'new',       label: '신규',     tone: 'bg-stone-100 text-stone-700' },
@@ -247,6 +250,7 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
 
   const [downloading, setDownloading] = useState(false)
   const [showBroadcast, setShowBroadcast] = useState(false)
+  const [tab, setTab] = useState<AdminTab>('list')
 
   const load = async (silent = false) => {
     if (!silent) setLoading(true)
@@ -381,6 +385,35 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-6 space-y-4">
+        <div className="flex border-b border-stone-200">
+          <button
+            type="button"
+            onClick={() => setTab('list')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              tab === 'list'
+                ? 'border-stone-900 text-stone-900'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            가입자 목록
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('analytics')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              tab === 'analytics'
+                ? 'border-stone-900 text-stone-900'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            📊 분석 보고서
+          </button>
+        </div>
+
+        {tab === 'analytics' ? (
+          <AnalyticsView token={token} />
+        ) : (
+        <>
         <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-white border border-stone-200 rounded-lg p-4">
             <div className="text-xs text-stone-500">전체 가입자</div>
@@ -488,6 +521,8 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
             </div>
           </>
         ) : null}
+        </>
+        )}
       </main>
 
       {showBroadcast && (
