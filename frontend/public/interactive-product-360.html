@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>송영신목장 A2 저지 헤이밀크 360°</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at center top, #ffffff 0%, #f6f3ea 46%, #ece7db 100%);
+      color: #171717;
+      overflow-x: hidden;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+    }
+
+    .stage {
+      width: min(1180px, 100%);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: center;
+    }
+
+    .copy { max-width: 520px; }
+
+    .eyebrow {
+      font-size: 15px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #9b7a3c;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(46px, 6vw, 88px);
+      line-height: 0.98;
+      letter-spacing: -0.07em;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin-top: 28px;
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.55;
+      color: #555;
+      word-break: keep-all;
+    }
+
+    .hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 30px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.72);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.08);
+      color: #5f5138;
+      font-weight: 700;
+      font-size: 14px;
+      backdrop-filter: blur(16px);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #bf9b52;
+      box-shadow: 0 0 0 8px rgba(191,155,82,0.16);
+    }
+
+    .viewer {
+      position: relative;
+      width: 100%;
+      height: min(78vh, 760px);
+      min-height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .viewer.dragging { cursor: grabbing; }
+
+    .viewer canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glow {
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255,255,255,0.85), rgba(232,218,184,0.30) 48%, rgba(255,255,255,0) 70%);
+      filter: blur(2px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9b7a3c;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      pointer-events: none;
+      transition: opacity 360ms ease;
+    }
+
+    .loading.hidden { opacity: 0; }
+
+    .controls {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 6;
+    }
+
+    .controls button {
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.86);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+      backdrop-filter: blur(12px);
+      font-weight: 700;
+      font-size: 13px;
+      color: #5f5138;
+      cursor: pointer;
+    }
+
+    .controls button:hover { background: #fff; }
+
+    .hotspot {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      margin: -13px 0 0 -13px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.86);
+      box-shadow: 0 0 0 1px rgba(158,120,48,0.24), 0 10px 28px rgba(0,0,0,0.16);
+      cursor: pointer;
+      z-index: 4;
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .hotspot::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 999px;
+      background: #b58b3e;
+    }
+
+    .hotspot::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: 999px;
+      border: 1px solid rgba(181,139,62,0.32);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .hotspot[data-hidden="true"] {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.7);
+    }
+
+    .tip {
+      position: absolute;
+      width: 240px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.14);
+      opacity: 0;
+      transform: translate(12px, -50%) scale(0.98);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 5;
+      word-break: keep-all;
+    }
+
+    .tip strong {
+      display: block;
+      font-size: 17px;
+      margin-bottom: 6px;
+      letter-spacing: -0.03em;
+    }
+
+    .tip p {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: #555;
+    }
+
+    .hotspot:hover + .tip,
+    .hotspot:focus + .tip {
+      opacity: 1;
+      transform: translate(20px, -50%) scale(1);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.82); opacity: 0.85; }
+      100% { transform: scale(1.55); opacity: 0; }
+    }
+
+    @media (max-width: 900px) {
+      .stage {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+      }
+      .copy { margin: 0 auto; }
+      .viewer { height: 620px; min-height: 560px; }
+      .tip { width: 200px; }
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <section class="hero">
+    <div class="stage">
+      <div class="copy">
+        <div class="eyebrow">Songyoungshin Farm · 360°</div>
+        <h1>A2 저지<br />헤이밀크</h1>
+        <p class="subtitle">병을 좌우로 드래그하면 라벨 전체를 360°로 둘러볼 수 있습니다. 핵심 포인트에 마우스를 올리면 가치가 펼쳐집니다.</p>
+        <div class="hint"><span class="dot"></span> 좌우로 드래그 · 호버 · 자동 회전</div>
+      </div>
+
+      <div class="viewer" id="viewer">
+        <div class="glow"></div>
+        <div class="loading" id="loading">라벨 불러오는 중…</div>
+
+        <button class="hotspot" data-id="a2" aria-label="A2 정보"></button>
+        <div class="tip" data-tip="a2">
+          <strong>A2</strong>
+          <p>A1 단백질이 아닌 A2 베타카제인 중심의 우유. 더 편안한 프리미엄 밀크 경험을 전합니다.</p>
+        </div>
+
+        <button class="hotspot" data-id="jersey" aria-label="Jersey 정보"></button>
+        <div class="tip" data-tip="jersey">
+          <strong>Jersey</strong>
+          <p>저지 품종 특유의 진하고 부드러운 풍미. 일반 우유보다 깊은 바디감을 지향합니다.</p>
+        </div>
+
+        <button class="hotspot" data-id="hay" aria-label="Hay Milk 정보"></button>
+        <div class="tip" data-tip="hay">
+          <strong>Hay Milk</strong>
+          <p>건초 중심 사양 철학. 건강한 초지, 행복한 소, 깨끗한 우유의 순환을 표현합니다.</p>
+        </div>
+
+        <button class="hotspot" data-id="welfare" aria-label="동물복지 정보"></button>
+        <div class="tip" data-tip="welfare">
+          <strong>동물복지 인증</strong>
+          <p>젖소의 건강과 편안함을 우선하는 운영 철학. 좋은 환경에서 좋은 우유가 시작됩니다.</p>
+        </div>
+
+        <div class="controls">
+          <button id="btn-auto">자동 회전 ⏯</button>
+          <button id="btn-reset">정면으로</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    const viewer = document.getElementById('viewer');
+    const loadingEl = document.getElementById('loading');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+    camera.position.set(0, 0, 9);
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    viewer.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    keyLight.position.set(2, 3, 4);
+    scene.add(keyLight);
+    const rimLight = new THREE.DirectionalLight(0xffe6b8, 0.35);
+    rimLight.position.set(-3, 1, -2);
+    scene.add(rimLight);
+
+    const bottle = new THREE.Group();
+    scene.add(bottle);
+
+    // Bottle proportions (label 기준)
+    const RADIUS = 1.0;
+    const LABEL_HEIGHT = 1.6;
+    const BODY_HEIGHT = 3.4;
+
+    // Body (translucent white plastic) — slightly larger than label cylinder
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: 0xfdfbf4,
+      roughness: 0.35,
+      metalness: 0.05,
+    });
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(RADIUS * 1.005, RADIUS * 0.92, BODY_HEIGHT, 64, 1, false),
+      bodyMat
+    );
+    bottle.add(body);
+
+    // Shoulder
+    const shoulder = new THREE.Mesh(
+      new THREE.CylinderGeometry(RADIUS * 0.55, RADIUS * 1.005, 0.55, 64),
+      bodyMat
+    );
+    shoulder.position.y = BODY_HEIGHT / 2 + 0.275;
+    bottle.add(shoulder);
+
+    // Neck
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(RADIUS * 0.5, RADIUS * 0.55, 0.32, 48),
+      bodyMat
+    );
+    neck.position.y = BODY_HEIGHT / 2 + 0.55 + 0.16;
+    bottle.add(neck);
+
+    // Cap
+    const capMat = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      roughness: 0.45,
+      metalness: 0.15,
+    });
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(RADIUS * 0.52, RADIUS * 0.52, 0.36, 48),
+      capMat
+    );
+    cap.position.y = BODY_HEIGHT / 2 + 0.55 + 0.32 + 0.18;
+    bottle.add(cap);
+
+    // Label cylinder — slightly outside body so texture sits cleanly
+    const labelLoader = new THREE.TextureLoader();
+    labelLoader.setCrossOrigin('anonymous');
+    const labelTex = labelLoader.load(
+      './label.png',
+      () => loadingEl.classList.add('hidden'),
+      undefined,
+      () => { loadingEl.textContent = 'label.png 로드 실패 — frontend/public/label.png 확인'; }
+    );
+    labelTex.colorSpace = THREE.SRGBColorSpace;
+    labelTex.wrapS = THREE.RepeatWrapping;
+    labelTex.wrapT = THREE.ClampToEdgeWrapping;
+    // Three's CylinderGeometry wraps texture so seam is at +X with U increasing CCW.
+    // Flip horizontally so the label reads correctly on the outside.
+    labelTex.repeat.x = -1;
+    labelTex.offset.x = 1;
+
+    const labelMat = new THREE.MeshStandardMaterial({
+      map: labelTex,
+      roughness: 0.55,
+      metalness: 0.0,
+      transparent: true,
+    });
+    const label = new THREE.Mesh(
+      new THREE.CylinderGeometry(RADIUS * 1.012, RADIUS * 1.012, LABEL_HEIGHT, 96, 1, true),
+      labelMat
+    );
+    label.position.y = -0.15; // 라벨이 병의 중앙~하단에 붙음
+    bottle.add(label);
+
+    // Hotspots — 3D anchor points on the label cylinder surface
+    // angle: radians around Y axis (0 = front, positive = rotate label to right)
+    // y: vertical position in world units
+    const HOTSPOTS = [
+      { id: 'a2',      angle:  0.0,          y:  0.10 }, // 정면 골드 A2저지 배지
+      { id: 'jersey',  angle: -Math.PI*0.32, y: -0.10 }, // 정면 좌측 (라벨 회전 시 살짝 옆)
+      { id: 'hay',     angle:  Math.PI*0.18, y: -0.50 }, // A2 JERSEY HAY MILK 텍스트
+      { id: 'welfare', angle:  Math.PI*0.78, y:  0.20 }, // 라벨 우측의 동물복지 인증 영역
+    ];
+
+    const hotspotEls = {};
+    const tipEls = {};
+    document.querySelectorAll('.hotspot').forEach((el) => { hotspotEls[el.dataset.id] = el; });
+    document.querySelectorAll('.tip').forEach((el) => { tipEls[el.dataset.tip] = el; });
+
+    const tmpVec = new THREE.Vector3();
+
+    function updateHotspots(rect) {
+      for (const hs of HOTSPOTS) {
+        const x = Math.sin(hs.angle) * RADIUS * 1.05;
+        const z = Math.cos(hs.angle) * RADIUS * 1.05;
+        tmpVec.set(x, hs.y + label.position.y, z);
+        bottle.localToWorld(tmpVec);
+
+        const camSpace = tmpVec.clone().applyMatrix4(camera.matrixWorldInverse);
+        const facingCamera = camSpace.z < -0.05; // 화면 앞쪽
+
+        tmpVec.project(camera);
+        const sx = (tmpVec.x * 0.5 + 0.5) * rect.width;
+        const sy = (-tmpVec.y * 0.5 + 0.5) * rect.height;
+
+        const el = hotspotEls[hs.id];
+        const tip = tipEls[hs.id];
+        if (!el) continue;
+        el.style.left = sx + 'px';
+        el.style.top = sy + 'px';
+        el.dataset.hidden = facingCamera ? 'false' : 'true';
+        if (tip) {
+          tip.style.left = (sx + 16) + 'px';
+          tip.style.top = sy + 'px';
+          if (facingCamera === false) {
+            tip.style.opacity = '0';
+          }
+        }
+      }
+    }
+
+    // Resize
+    function resize() {
+      const rect = viewer.getBoundingClientRect();
+      renderer.setSize(rect.width, rect.height, false);
+      camera.aspect = rect.width / rect.height;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Drag rotation + inertia
+    let isDown = false;
+    let lastX = 0;
+    let velocity = 0;
+    let autoRotate = true;
+    let lastInteraction = performance.now();
+
+    function onDown(x) {
+      isDown = true;
+      lastX = x;
+      velocity = 0;
+      viewer.classList.add('dragging');
+      lastInteraction = performance.now();
+    }
+    function onMove(x) {
+      if (!isDown) return;
+      const dx = x - lastX;
+      lastX = x;
+      const delta = dx * 0.008;
+      bottle.rotation.y += delta;
+      velocity = delta;
+      lastInteraction = performance.now();
+    }
+    function onUp() {
+      isDown = false;
+      viewer.classList.remove('dragging');
+    }
+
+    viewer.addEventListener('mousedown', (e) => onDown(e.clientX));
+    window.addEventListener('mousemove', (e) => onMove(e.clientX));
+    window.addEventListener('mouseup', onUp);
+    viewer.addEventListener('touchstart', (e) => onDown(e.touches[0].clientX), { passive: true });
+    window.addEventListener('touchmove', (e) => onMove(e.touches[0].clientX), { passive: true });
+    window.addEventListener('touchend', onUp);
+
+    document.getElementById('btn-auto').addEventListener('click', () => {
+      autoRotate = !autoRotate;
+      lastInteraction = performance.now();
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      const target = 0;
+      const start = bottle.rotation.y;
+      const t0 = performance.now();
+      const duration = 600;
+      function step(now) {
+        const k = Math.min(1, (now - t0) / duration);
+        const ease = 1 - Math.pow(1 - k, 3);
+        bottle.rotation.y = start + (target - start) * ease;
+        if (k < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      lastInteraction = performance.now();
+    });
+
+    // Render loop
+    function tick() {
+      const now = performance.now();
+
+      if (!isDown) {
+        // inertia
+        if (Math.abs(velocity) > 0.0002) {
+          bottle.rotation.y += velocity;
+          velocity *= 0.94;
+        } else {
+          velocity = 0;
+        }
+        // auto-rotate after idle
+        if (autoRotate && now - lastInteraction > 1800 && velocity === 0) {
+          bottle.rotation.y += 0.0035;
+        }
+      }
+
+      const rect = viewer.getBoundingClientRect();
+      updateHotspots(rect);
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>
