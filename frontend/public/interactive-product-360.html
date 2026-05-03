@@ -243,13 +243,6 @@
     }
   </style>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-    }
-  }
-  </script>
 </head>
 <body>
   <section class="hero">
@@ -298,7 +291,7 @@
   </section>
 
   <script type="module">
-    import * as THREE from 'three';
+    import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
     const viewer = document.getElementById('viewer');
     const loadingEl = document.getElementById('loading');
