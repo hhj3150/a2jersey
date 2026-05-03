@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>송영신목장 · A2 Jersey · 제품 상세페이지</title>
+<meta name="description" content="A2 저지 헤이밀크 180ml · 500ml 플레인 요거트 · 750ml — 송영신목장 제품 상세페이지." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --paper:#f1e9d6;
+    --paper-2:#ebe1c8;
+    --ink:#1a1a1a;
+    --ink-soft:#2b2620;
+    --mute:#6b5e48;
+    --gold:#b89554;
+    --line:#d8cdb0;
+  }
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink-soft);font-family:'Noto Serif KR',serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+  img{display:block;max-width:100%;height:auto}
+  a{color:inherit;text-decoration:none}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:22px 32px;border-bottom:1px solid var(--line)}
+  .topbar .brand{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+  .topbar .brand b{font-weight:500}
+  .topbar .meta{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute)}
+
+  .hero{padding:96px 32px 56px;text-align:center;max-width:920px;margin:0 auto}
+  .hero .eyebrow{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.42em;text-transform:uppercase;color:var(--mute);margin-bottom:20px}
+  .hero h1{font-family:'Noto Serif KR',serif;font-weight:500;font-size:clamp(34px,5vw,60px);line-height:1.25;letter-spacing:-.01em;color:var(--ink);margin:0}
+  .hero h1 em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-weight:400}
+  .hero p{margin-top:28px;font-size:15.5px;line-height:2;color:var(--ink-soft)}
+  .hero .note{margin-top:24px;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute)}
+
+  .grid{padding:24px 32px 96px;max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .item{position:relative;display:flex;flex-direction:column;background:var(--paper-2);border:1px solid var(--line);transition:transform .35s ease, box-shadow .35s ease;overflow:hidden}
+  .item:hover{transform:translateY(-4px);box-shadow:0 24px 48px -16px rgba(40,30,15,.18)}
+  .item .photo{height:420px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--paper-2) 0%,var(--paper) 100%);position:relative;overflow:hidden}
+  .item .photo img{max-height:380px;max-width:60%;width:auto;filter:drop-shadow(0 18px 36px rgba(40,30,15,.16))}
+  .item .photo .wm{position:absolute;font-family:'Noto Serif KR',serif;font-weight:500;font-size:280px;color:var(--gold);opacity:.10;line-height:1;pointer-events:none;user-select:none;top:50%;left:50%;transform:translate(-50%,-50%)}
+  .item .body{padding:28px 28px 32px;border-top:1px solid var(--line)}
+  .item .body .row{display:flex;justify-content:space-between;align-items:baseline;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
+  .item .body .row .num{color:var(--gold)}
+  .item .body h2{font-family:'Noto Serif KR',serif;font-weight:500;font-size:24px;line-height:1.4;color:var(--ink);margin:0 0 10px}
+  .item .body h2 em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-weight:400}
+  .item .body .sub{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.18em;color:var(--mute);text-transform:uppercase;margin-bottom:16px}
+  .item .body p{margin:0 0 22px;font-size:14px;line-height:1.95;color:var(--ink-soft)}
+  .item .body .cta{display:inline-flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:6px;transition:color .2s, border-color .2s}
+  .item:hover .cta{color:var(--gold);border-bottom-color:var(--gold)}
+
+  .item.color-180 .item-accent,
+  .item.color-500 .item-accent,
+  .item.color-750 .item-accent{position:absolute;top:0;left:0;right:0;height:3px}
+  .item.color-180 .item-accent{background:#b89554}
+  .item.color-500 .item-accent{background:#7a8a3d}
+  .item.color-750 .item-accent{background:#a36b2c}
+
+  footer{padding:40px 32px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute)}
+
+  @media (max-width: 880px){
+    .grid{grid-template-columns:1fr;gap:24px;padding:20px 18px 80px}
+    .item .photo{height:340px}
+    .item .photo img{max-height:300px}
+    .topbar{padding:16px 18px}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">송영신목장 <b>A2 Jersey</b></div>
+  <div class="meta">Product Detail Pages · Draft</div>
+</header>
+
+<section class="hero">
+  <p class="eyebrow">Song Yeong Shin Farm — A2 Jersey Lineup</p>
+  <h1>세 개의 단위, <em>하나의 정직함.</em></h1>
+  <p>
+    국내 1.6%의 희소한 A2/A2 저지소, 사일리지 없이 건초만 먹은 헤이밀크.<br />
+    한 잔의 일상부터 식탁의 풍요까지 — 세 개의 단위로 각각의 자리에 놓이는 송영신목장 제품 상세페이지입니다.
+  </p>
+  <p class="note">— 디자이너 공유용 시안 · Draft v1</p>
+</section>
+
+<section class="grid">
+
+  <a href="180ml.html" class="item color-180" aria-label="A2 저지 헤이밀크 180ml 상세페이지 열기">
+    <span class="item-accent" aria-hidden="true"></span>
+    <div class="photo">
+      <span class="wm" aria-hidden="true">喉</span>
+      <img src="images/180ml_milk.png" alt="A2 저지 헤이밀크 180ml" />
+    </div>
+    <div class="body">
+      <div class="row"><span>Hay Milk · 180ml</span><span class="num">No. 01</span></div>
+      <h2>한 손에 잡히는 <em>한 끼.</em></h2>
+      <p class="sub">Daily / 137 kcal</p>
+      <p>물보다 가벼운 목넘김, 저지의 깊이. 가장 작은 단위가 가장 정직한 단위가 되는 한 병.</p>
+      <span class="cta">View detail →</span>
+    </div>
+  </a>
+
+  <a href="500ml.html" class="item color-500" aria-label="A2 저지 플레인 요거트 500ml 상세페이지 열기">
+    <span class="item-accent" aria-hidden="true"></span>
+    <div class="photo">
+      <span class="wm" aria-hidden="true">醇</span>
+      <img src="images/500ml_yogurt.png" alt="A2 저지 플레인 요거트 500ml" />
+    </div>
+    <div class="body">
+      <div class="row"><span>Plain Yogurt · 500ml</span><span class="num">No. 02</span></div>
+      <h2><em>발효</em>, 그 한 가지의 깊이.</h2>
+      <p class="sub">Plain / 390 kcal</p>
+      <p>설탕도, 향료도, 첨가물도 없이. 두 가지 — 우유와 유산균 — 만으로 완성되는 ‘진짜 플레인’.</p>
+      <span class="cta">View detail →</span>
+    </div>
+  </a>
+
+  <a href="750ml.html" class="item color-750" aria-label="A2 저지 헤이밀크 750ml 상세페이지 열기">
+    <span class="item-accent" aria-hidden="true"></span>
+    <div class="photo">
+      <span class="wm" aria-hidden="true">滿</span>
+      <img src="images/750ml_milk.png" alt="A2 저지 헤이밀크 750ml" />
+    </div>
+    <div class="body">
+      <div class="row"><span>Hay Milk · 750ml</span><span class="num">No. 03</span></div>
+      <h2>식탁 위의 <em>풍요.</em></h2>
+      <p class="sub">Family / 570 kcal</p>
+      <p>한 병이 식탁을 채우는 단위. 가족이 둘러앉아 한 주를 함께 보내기에 가장 송영신스러운 750ml.</p>
+      <span class="cta">View detail →</span>
+    </div>
+  </a>
+
+</section>
+
+<footer>
+  <div>Song Yeong Shin Farm · 경기도 안성 · est. 2007</div>
+  <div>For Web Design Handoff</div>
+</footer>
+
+</body>
+</html>
