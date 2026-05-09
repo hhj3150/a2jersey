@@ -34,9 +34,10 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
   const isLive = dday.phase === 'live'
   const launchLabel = formatLaunchShort(launchDate)
 
+  // shopUrl이 설정돼 있으면 외부 쇼핑몰로, 아직이면 ComingSoonNotice로 폴백.
   const handleSubscribeClick = () => {
-    if (isLive) {
-      window.open(env.smartstoreUrl, '_blank', 'noopener,noreferrer')
+    if (isLive && env.shopUrl) {
+      window.open(env.shopUrl, '_blank', 'noopener,noreferrer')
     } else {
       setNoticeOpen(true)
     }
@@ -133,15 +134,17 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
             type="button"
             onClick={handleSubscribeClick}
             className="btn-primary w-full sm:w-auto sm:px-10"
-            aria-haspopup={isLive ? undefined : 'dialog'}
+            aria-haspopup={isLive && env.shopUrl ? undefined : 'dialog'}
           >
-            {isLive ? '정기구독 신청하기' : `정기구독 신청하기 · ${launchLabel} 오픈`}
-            <span className="ml-1.5" aria-hidden>{isLive ? '→' : '↗'}</span>
+            {isLive && env.shopUrl
+              ? '정기구독 신청하기'
+              : `정기구독 신청하기 · ${launchLabel} 오픈`}
+            <span className="ml-1.5" aria-hidden>{isLive && env.shopUrl ? '→' : '↗'}</span>
           </button>
           <p className="mt-2.5 text-[11px] text-mute">
-            {isLive
-              ? '네이버 스마트스토어로 이동합니다'
-              : `${launchLabel}부터 네이버 스마트스토어에서 신청 가능`}
+            {isLive && env.shopUrl
+              ? '송영신목장 공식 쇼핑몰로 이동합니다'
+              : `${launchLabel}부터 송영신목장 공식 쇼핑몰에서 신청 가능`}
           </p>
         </div>
       </div>
@@ -150,7 +153,7 @@ export function SubscriptionPreview({ launchDate }: SubscriptionPreviewProps) {
         open={noticeOpen}
         onClose={() => setNoticeOpen(false)}
         launchLabel={launchLabel}
-        smartstoreUrl={env.smartstoreUrl}
+        shopUrl={env.shopUrl}
         onSignupClick={scrollToSignup}
       />
 

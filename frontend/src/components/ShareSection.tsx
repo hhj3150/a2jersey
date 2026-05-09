@@ -14,7 +14,7 @@ const SHARE_TITLE = '송영신목장 A2 Jersey Hay Milk'
 const SHARE_TEXT_PRE =
   '국내산 A2 Jersey 우유 정기구독을 6월 1일 오픈합니다. 사전회원 신청하면 가장 먼저 안내드려요.'
 const SHARE_TEXT_LIVE =
-  '국내산 A2 Jersey 우유 — 송영신목장 헤이밀크와 요거트, 네이버 스마트스토어에서 정기구독으로 만나보세요.'
+  '국내산 A2 Jersey 우유 — 송영신목장 헤이밀크와 요거트, 공식 쇼핑몰에서 정기구독으로 만나보세요.'
 
 interface ShareSectionProps {
   launchDate: string

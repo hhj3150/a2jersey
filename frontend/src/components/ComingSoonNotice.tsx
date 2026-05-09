@@ -4,7 +4,9 @@ interface Props {
   open: boolean
   onClose: () => void
   launchLabel: string
-  smartstoreUrl: string
+  // 정기구독 신청이 이뤄질 외부 쇼핑몰 URL. 빈 문자열이면 "미리 보기" 버튼을 숨긴다
+  // (아임웹 자체몰 연결 전까지 잘못된 링크 노출 방지).
+  shopUrl: string
   onSignupClick: () => void
 }
 
@@ -12,7 +14,7 @@ export function ComingSoonNotice({
   open,
   onClose,
   launchLabel,
-  smartstoreUrl,
+  shopUrl,
   onSignupClick,
 }: Props) {
   useEffect(() => {
@@ -65,7 +67,7 @@ export function ComingSoonNotice({
             정기구독 {launchLabel} 오픈
           </h2>
           <p className="mt-4 text-sm leading-7 text-mute">
-            {launchLabel}부터 네이버 스마트스토어에서
+            {launchLabel}부터 송영신목장 공식 쇼핑몰에서
             <br />
             정기구독 신청이 가능합니다.
           </p>
@@ -86,18 +88,20 @@ export function ComingSoonNotice({
             >
               사전회원 등록하기
             </button>
-            <a
-              href={smartstoreUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={onClose}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-line bg-surface px-5 py-3 text-sm font-medium text-ink transition hover:border-soil hover:text-soil-dark"
-            >
-              스마트스토어 미리 보기
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden>
-                <path d="M2 9L9 2M9 2H4M9 2v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
+            {shopUrl && (
+              <a
+                href={shopUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onClose}
+                className="inline-flex items-center justify-center gap-1.5 rounded-full border border-line bg-surface px-5 py-3 text-sm font-medium text-ink transition hover:border-soil hover:text-soil-dark"
+              >
+                공식 쇼핑몰 미리 보기
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden>
+                  <path d="M2 9L9 2M9 2H4M9 2v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+            )}
           </div>
         </div>
       </div>
