@@ -7,6 +7,12 @@ import {
   type BroadcastResult,
   type BroadcastHistoryItem,
 } from '../lib/admin'
+import { env } from '../env'
+
+// 정기구독 트래픽이 향할 공식 쇼핑몰 URL. env에 설정되지 않았을 때는 운영자가 발송 전에
+// 직접 채워 넣도록 placeholder를 노출 — 잘못된 임시 링크가 SMS로 나가는 사고를 방지.
+const SHOP_URL_PLACEHOLDER = '[쇼핑몰 URL — 발송 전 입력]'
+const shopLink = env.shopUrl || SHOP_URL_PLACEHOLDER
 
 interface Props {
   token: string
@@ -34,37 +40,37 @@ const MESSAGE_TEMPLATES: { key: string; label: string; body: string }[] = [
     key: 'subscription-launch',
     label: '🎉 정기구독 오픈 안내',
     body:
-      '[송영신목장] 6월 1일 A2 저지 우유 정기구독이 오픈됩니다.\n사전회원 한정 ○% 추가 할인.\n▶ https://smartstore.naver.com/a2milk_hay',
+      `[송영신목장] 6월 1일 A2 저지 우유 정기구독이 오픈됩니다.\n사전회원 한정 ○% 추가 할인.\n▶ ${shopLink}`,
   },
   {
     key: 'subscription-followup',
     label: '🔁 미전환자 follow-up',
     body:
-      '[송영신목장] A2 저지 헤이밀크 정기구독, 아직 망설이고 계세요?\n사전회원만의 ○% 할인 쿠폰을 ◯◯/◯◯까지 사용 가능합니다.\n▶ https://smartstore.naver.com/a2milk_hay',
+      `[송영신목장] A2 저지 헤이밀크 정기구독, 아직 망설이고 계세요?\n사전회원만의 ○% 할인 쿠폰을 ◯◯/◯◯까지 사용 가능합니다.\n▶ ${shopLink}`,
   },
   {
     key: 'new-product',
     label: '🆕 신상품 출시',
     body:
-      '[송영신목장] 신상품 ◯◯◯이 새롭게 출시되었습니다.\n정기구독자 한정 ○% 할인 적용 중.\n▶ https://smartstore.naver.com/a2milk_hay',
+      `[송영신목장] 신상품 ◯◯◯이 새롭게 출시되었습니다.\n정기구독자 한정 ○% 할인 적용 중.\n▶ ${shopLink}`,
   },
   {
     key: 'season-event',
     label: '🍦 시즌 이벤트',
     body:
-      '[송영신목장] ◯◯ 시즌 한정 이벤트가 시작되었습니다.\n안성팜랜드 카페에서 한정 메뉴 ◯◯◯을 만나보세요.\n자세히 ▶ https://www.a2jerseymilk.com',
+      `[송영신목장] ◯◯ 시즌 한정 이벤트가 시작되었습니다.\n안성팜랜드 카페에서 한정 메뉴 ◯◯◯을 만나보세요.\n자세히 ▶ ${env.brandHomepage}`,
   },
   {
     key: 'subscription-discount',
     label: '💰 정기구독 할인 쿠폰',
     body:
-      '[송영신목장] 회원 감사 정기구독 ○% 추가 할인 쿠폰을 보내드립니다.\n사용기한 ◯◯/◯◯까지.\n▶ https://smartstore.naver.com/a2milk_hay',
+      `[송영신목장] 회원 감사 정기구독 ○% 추가 할인 쿠폰을 보내드립니다.\n사용기한 ◯◯/◯◯까지.\n▶ ${shopLink}`,
   },
   {
     key: 'farm-news',
     label: '🐄 농장 소식',
     body:
-      '[송영신목장] 안성 목장의 ◯월 소식을 전해드립니다.\n${브랜드 스토리·수확 등 한 줄 요약}\n자세히 ▶ https://www.a2jerseymilk.com',
+      `[송영신목장] 안성 목장의 ◯월 소식을 전해드립니다.\n\${브랜드 스토리·수확 등 한 줄 요약}\n자세히 ▶ ${env.brandHomepage}`,
   },
 ]
 
@@ -78,7 +84,7 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
   const [tab, setTab] = useState<'compose' | 'history'>('compose')
 
   const [message, setMessage] = useState(
-    '[송영신목장] 6월 1일 A2 저지 우유 정기구독이 오픈됩니다.\n네이버 스마트스토어에서 신청해 주세요.\n▶ https://smartstore.naver.com/a2milk_hay',
+    `[송영신목장] 6월 1일 A2 저지 우유 정기구독이 오픈됩니다.\n공식 쇼핑몰에서 신청해 주세요.\n▶ ${shopLink}`,
   )
   const [refFilter, setRefFilter] = useState(defaultRefFilter ?? '')
   const [smsConsentOnly, setSmsConsentOnly] = useState(true)
@@ -131,12 +137,17 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
   const nightBlocked = preview ? !preview.daytimeKST && !bypassNightCheck : false
   const optOutMissing = preview ? !preview.optOutConfigured && !forceDryRun : false
 
+  // placeholder가 본문에 남아있으면 발송 차단 — "[쇼핑몰 URL — 발송 전 입력]" 문구 그대로
+  // 수만 명에게 SMS가 나가는 사고 방지.
+  const placeholderUnreplaced = message.includes(SHOP_URL_PLACEHOLDER)
+
   const canSubmit =
     !submitting &&
     message.trim().length > 0 &&
     targetCount > 0 &&
     !nightBlocked &&
-    !optOutMissing
+    !optOutMissing &&
+    !placeholderUnreplaced
 
   const handleSubmit = async () => {
     if (!canSubmit) return
@@ -219,6 +230,13 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
 
         {tab === 'compose' ? (
           <div className="p-6 space-y-4">
+            {!env.shopUrl && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded p-3 text-sm">
+                ⚠️ 공식 쇼핑몰 URL(<code>VITE_SHOP_URL</code>)이 미설정 — 템플릿에 <code>{SHOP_URL_PLACEHOLDER}</code> placeholder가 들어갑니다.
+                <br />
+                발송 전 본문에서 placeholder를 실제 URL로 반드시 교체하세요.
+              </div>
+            )}
             {preview && !preview.solapiConfigured && (
               <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded p-3 text-sm">
                 ⚠️ 솔라피 환경변수가 설정되지 않았습니다. 발송 시도하면 자동으로 드라이런 모드로 처리됩니다.
@@ -241,6 +259,13 @@ export function BroadcastModal({ token, onClose, defaultRefFilter }: Props) {
                 정통망법 §50 위반 방지를 위해 Solapi 080 부가서비스 신청 후 Railway 환경변수에 등록해주세요.
                 <br />
                 (드라이런 모드는 무관하게 사용 가능합니다)
+              </div>
+            )}
+            {placeholderUnreplaced && (
+              <div className="bg-red-50 border border-red-200 text-red-800 rounded p-3 text-sm">
+                🚫 본문에 쇼핑몰 URL placeholder가 남아 있습니다 — 발송 차단.
+                <br />
+                <code>{SHOP_URL_PLACEHOLDER}</code> 부분을 실제 URL로 교체한 뒤 다시 시도하세요.
               </div>
             )}
 

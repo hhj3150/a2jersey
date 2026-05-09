@@ -11,9 +11,11 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
   const launchLabel = formatLaunchLabel(launchDate)
   const isLaunched = dday.phase === 'live' || dday.phase === 'today'
 
+  // 오픈 후 shopUrl이 설정돼 있으면 외부 쇼핑몰로, 아직 미설정이면 사전회원 등록으로 폴백.
+  // (아임웹 자체몰 연결 전까지 잘못된 링크로 보내지 않기 위함)
   const handleCtaClick = () => {
-    if (isLaunched) {
-      window.open(env.smartstoreUrl, '_blank', 'noopener,noreferrer')
+    if (isLaunched && env.shopUrl) {
+      window.open(env.shopUrl, '_blank', 'noopener,noreferrer')
     } else {
       onCtaClick()
     }
@@ -63,13 +65,13 @@ export function Hero({ onCtaClick, launchDate }: HeroProps) {
           onClick={handleCtaClick}
           className="btn-primary mt-6 w-full sm:w-auto"
         >
-          {isLaunched
+          {isLaunched && env.shopUrl
             ? '정기구독 신청하기'
             : `${launchLabel} 오픈 알림 받기`}
-          <span className="ml-1.5" aria-hidden>{isLaunched ? '→' : ''}</span>
+          <span className="ml-1.5" aria-hidden>{isLaunched && env.shopUrl ? '→' : ''}</span>
         </button>
 
-        {isLaunched && (
+        {isLaunched && env.shopUrl && (
           <div className="mt-3">
             <button
               type="button"

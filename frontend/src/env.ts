@@ -4,8 +4,9 @@ export const env = {
     import.meta.env.VITE_BRAND_HOMEPAGE || 'https://www.a2jerseymilk.com',
   brandFilmId: import.meta.env.VITE_BRAND_FILM_ID || 'bI5EmgK0i2A',
   launchDate: import.meta.env.VITE_LAUNCH_DATE || '2026-06-01',
-  smartstoreUrl:
-    import.meta.env.VITE_SMARTSTORE_URL || 'https://smartstore.naver.com/a2milk_hay',
+  // 정기구독 트래픽이 향할 공식 쇼핑몰 (현재 아임웹 자체몰 준비 중, 5월 말 연결 예정).
+  // 비어 있으면 UI는 "오픈 예정" 안내만 표시하고 외부 링크 버튼을 숨긴다.
+  shopUrl: import.meta.env.VITE_SHOP_URL || '',
   facebookUrl:
     import.meta.env.VITE_FACEBOOK_URL ||
     'https://www.facebook.com/profile.php?id=100010048209772',
