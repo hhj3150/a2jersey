@@ -126,7 +126,7 @@ npm run dev
 |---|---|---|
 | `PORT` | Express 서버 포트 | `4000` |
 | `DATABASE_PATH` | SQLite 파일 경로 | `./data/leads.db` |
-| `CORS_ORIGINS` | 허용 오리진 (콤마 구분) | `http://localhost:5173,https://a2jersey.netlify.app` |
+| `CORS_ORIGINS` | 허용 오리진 (콤마 구분) | `http://localhost:5173,https://a2jersey-pre.netlify.app` |
 | `ADMIN_USER` | 관리자 아이디 | `admin` |
 | `ADMIN_PASSWORD` | 관리자 비밀번호 | (강한 비밀번호 권장) |
 
@@ -182,7 +182,7 @@ npm run dev
 1. Netlify 대시보드 → Add new site → Import from Git → `hhj3150/a2jersey`
 2. `netlify.toml`이 자동 인식 (base=`frontend`, publish=`dist`)
 3. Site settings → Environment variables에서 `VITE_API_URL` 추가 (Railway URL)
-4. Deploy → 발급된 URL 복사 (예: `https://a2jersey.netlify.app`)
+4. Deploy → 발급된 URL 복사 (예: `https://a2jersey-pre.netlify.app`)
 
 ### CORS 연동
 
@@ -192,6 +192,6 @@ npm run dev
 
 ## QR 코드
 
-배너에 인쇄할 URL: `https://a2jersey.netlify.app/?ref=cafe`
+배너에 인쇄할 URL: `https://a2jersey-pre.netlify.app/?ref=cafe`
 
 `?ref=` 파라미터로 진입 경로 추적 가능 (cafe / share / youtube / insta / blog).
