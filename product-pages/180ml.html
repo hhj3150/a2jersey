@@ -34,7 +34,7 @@
   .bp .bp-title h2{font-family:'Noto Serif KR',serif;font-size:clamp(32px,4.6vw,52px);font-weight:500;letter-spacing:-.02em;color:var(--ink);margin:0 0 22px;line-height:1.25}
   .bp .bp-title h2 em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-weight:400}
   .bp .bp-title p{font-family:'Noto Serif KR',serif;font-weight:300;font-size:14.5px;line-height:2;color:var(--mute);margin:0;letter-spacing:.01em}
-  .bp .bp-stage{display:grid;grid-template-columns:1fr 1fr;gap:80px;max-width:1440px;margin:0 auto;align-items:start}
+  .bp .bp-stage{max-width:760px;margin:0 auto}
   .bp .bp-side{position:relative}
   .bp .bp-side .bp-side-h{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:48px;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--mute)}
   .bp .bp-side .bp-side-h b{color:var(--ink);font-weight:600}
@@ -251,39 +251,13 @@
   </div>
 
   <div class="bp-title">
-    <h2>A2저지 헤이밀크.<br /><em>한 병에 담은 정직한 설계.</em></h2>
-    <p>좋은 우유는 섬세한 설계에서 시작됩니다.<br />A2저지 헤이밀크는 맛과 영양을 지키기 위해 병의 안팎을 세심하게 디자인했습니다.</p>
+    <h2>A2저지 헤이밀크.<br /><em>라벨에 적은 그대로.</em></h2>
+    <p>표시사항과 인증 — 한 병의 모든 사실을 라벨에 명확하게 인쇄했습니다.</p>
   </div>
 
   <div class="bp-stage">
 
-    <!-- FRONT -->
-    <div class="bp-side">
-      <div class="bp-side-h"><b>Front</b><span>앞면 설계</span></div>
-      <div class="bp-figure">
-        <div class="bp-photo"><img src="images/180ml_milk.png" alt="A2저지 헤이밀크 180ml — 앞면" /></div>
-        <svg class="bp-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M28 9 L50 8"/><circle cx="50" cy="8" r=".7"/>
-          <path d="M28 25 L50 17"/><circle cx="50" cy="17" r=".7"/>
-          <path d="M28 47 L42 42"/><circle cx="42" cy="42" r=".7"/>
-          <path d="M28 78 L42 82"/><circle cx="42" cy="82" r=".7"/>
-          <path d="M72 25 L52 30"/><circle cx="52" cy="30" r=".7"/>
-          <path d="M72 47 L58 52"/><circle cx="58" cy="52" r=".7"/>
-          <path d="M72 70 L52 70"/><circle cx="52" cy="70" r=".7"/>
-          <path d="M72 90 L52 94"/><circle cx="52" cy="94" r=".7"/>
-        </svg>
-        <div class="bp-call bp-call-l" style="--y:6%"><h5>보안 캡 & 씰</h5><p>신선함을 지키는 이중 안전 설계.</p></div>
-        <div class="bp-call bp-call-l" style="--y:22%"><h5>와이드 넥</h5><p>부드러운 음용과 간편한 세척을 위한 여유로운 입구.</p></div>
-        <div class="bp-call bp-call-l" style="--y:43%"><h5>A2 저지 원유</h5><p>A2 단백질만을 함유한 저지 원유. 소화가 편안한 자연의 선택.</p></div>
-        <div class="bp-call bp-call-l" style="--y:74%"><h5>신선한 유지 시스템</h5><p>저온 충전과 빠른 냉각으로 우유 본연의 맛과 영양을 그대로.</p></div>
-        <div class="bp-call bp-call-r" style="--y:21%"><h5>프리미엄 라벨</h5><p>고급 소재와 친환경 인쇄로 자연의 가치를 담았습니다.</p></div>
-        <div class="bp-call bp-call-r" style="--y:43%"><h5>강화 보틀 구조</h5><p>빛과 외부 충격으로부터 우유를 안전하게 보호하는 튼튼한 바디.</p></div>
-        <div class="bp-call bp-call-r" style="--y:66%"><h5>정직한 정보</h5><p>원유의 원산지와 영양 정보를 투명하게 표기.</p></div>
-        <div class="bp-call bp-call-r" style="--y:86%"><h5>안정적인 베이스</h5><p>흔들림 없이 세워지는 구조로 보관과 사용이 편리하게.</p></div>
-      </div>
-    </div>
-
-    <!-- BACK -->
+    <!-- BACK (라벨 전개도 + 인증/기능 callout) -->
     <div class="bp-side">
       <div class="bp-side-h"><b>Back</b><span>뒷면 설계</span></div>
       <div class="bp-figure">
@@ -330,7 +304,7 @@
         <div class="bp-call bp-call-r" style="--y:32%">
           <span class="num">— 06</span>
           <h5>QR 코드</h5>
-          <p>제품 정보, 생산 스토리, 인증 내역을 한눈에 확인.</p>
+          <p>제품 정보 확인용 QR.</p>
         </div>
         <div class="bp-call bp-call-r" style="--y:56%">
           <span class="num">— 07</span>
@@ -452,8 +426,8 @@
       <article class="card">
         <span class="num">— 01</span>
         <span class="kw">A2 / A2</span>
-        <h3>저지 0.1% 안에서도<br />100% A2A2 단일.</h3>
-        <p>대한민국 젖소 중 저지종은 단 0.1% — 그 안에서도 A2A2 유전형으로만 채운 단일 전용목장의 헤이밀크. 단백질 구조가 달라 속이 편한 한 병입니다.</p>
+        <h3>1,200두 저지 가운데<br />100% A2 전용은 우리뿐.</h3>
+        <p>국내 젖소 38만두 중 저지소는 약 1,200두. 그 가운데 100% A2A2 유전형으로만 채운 전용 목장은 송영신목장이 국내 유일. 단백질 구조가 달라 속이 편한 한 병입니다.</p>
       </article>
       <article class="card">
         <span class="num">— 02</span>
@@ -475,7 +449,7 @@
 <section class="heritage">
   <div class="head">
     <p class="eyebrow">The Heritage — 희소함의 근거</p>
-    <h2>국내 1.6%의 <em>A2/A2</em>, 그 안에서 <em>0.1%</em>의 저지.</h2>
+    <h2>국내 젖소 38만두 중 저지는 <em>1,200두</em>.<br />100% A2 전용은 <em>우리가 유일.</em></h2>
   </div>
   <div class="row">
     <div class="pill">
@@ -486,14 +460,14 @@
       <p>Royal Heritage</p>
     </div>
     <div class="pill">
-      <div class="badge num" aria-hidden="true">0.1<small>%</small></div>
-      <h4>대한민국 단 0.1%<br />한정 생산.</h4>
-      <p>Limited Production</p>
+      <div class="badge num" aria-hidden="true">1,200<small>두</small></div>
+      <h4>국내 젖소 38만두 중<br />저지는 1,200두.</h4>
+      <p>Rare Breed</p>
     </div>
     <div class="pill">
       <div class="badge num" aria-hidden="true">100<small>%</small></div>
-      <h4>100% A2A2 저지<br />단일 전용목장.</h4>
-      <p>Single-Breed Farm</p>
+      <h4>국내 유일<br />100% A2 저지 전용 목장.</h4>
+      <p>Korea's Only</p>
     </div>
     <div class="pill">
       <div class="badge num" aria-hidden="true">No.1</div>
