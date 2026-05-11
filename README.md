@@ -126,7 +126,7 @@ npm run dev
 |---|---|---|
 | `PORT` | Express 서버 포트 | `4000` |
 | `DATABASE_PATH` | SQLite 파일 경로 | `./data/leads.db` |
-| `CORS_ORIGINS` | 허용 오리진 (콤마 구분) | `http://localhost:5173,https://pre.a2jerseymilk.com,https://a2jersey-pre.netlify.app` |
+| `CORS_ORIGINS` | 허용 오리진 (콤마 구분) | `http://localhost:5173,https://pre.a2jerseymilk.co.kr,https://a2jersey-pre.netlify.app` |
 | `ADMIN_USER` | 관리자 아이디 | `admin` |
 | `ADMIN_PASSWORD` | 관리자 비밀번호 | (강한 비밀번호 권장) |
 
@@ -182,7 +182,9 @@ npm run dev
 1. Netlify 대시보드 → Add new site → Import from Git → `hhj3150/a2jersey`
 2. `netlify.toml`이 자동 인식 (base=`frontend`, publish=`dist`)
 3. Site settings → Environment variables에서 `VITE_API_URL` 추가 (Railway URL)
-4. Deploy → 발급된 URL 복사 (예: `https://pre.a2jerseymilk.com` — Netlify 기본 `https://a2jersey-pre.netlify.app`도 동시 유지)
+4. Deploy → 발급된 URL 복사 (예: `https://pre.a2jerseymilk.co.kr` — Netlify 기본 `https://a2jersey-pre.netlify.app`도 동시 유지)
+
+> **도메인 선택 근거**: a2jerseymilk.com은 Wix가 네임서버(ns14.wixdns.net)로 운영 중이라 홈페이지 운영 리스크 회피 차원에서 별도 도메인 a2jerseymilk.co.kr(가비아 DNS authoritative) 사용. 브랜드명 동일.
 
 ### CORS 연동
 
@@ -192,7 +194,7 @@ npm run dev
 
 ## QR 코드
 
-배너에 인쇄할 URL: `https://pre.a2jerseymilk.com/?ref=cafe`
+배너에 인쇄할 URL: `https://pre.a2jerseymilk.co.kr/?ref=cafe`
 (기존 인쇄본 `https://a2jersey-pre.netlify.app/?ref=cafe`도 Netlify 기본 도메인으로 자동 호환됨 — 폐기 X)
 
 `?ref=` 파라미터로 진입 경로 추적 가능 (cafe / share / youtube / insta / blog).
