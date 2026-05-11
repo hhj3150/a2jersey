@@ -3,7 +3,7 @@ import { useDDay } from '../lib/useDDay'
 import { env } from '../env'
 
 const buildShareUrl = (): string => {
-  if (typeof window === 'undefined') return 'https://a2jersey-pre.netlify.app'
+  if (typeof window === 'undefined') return 'https://pre.a2jerseymilk.com'
   const u = new URL(window.location.href)
   u.searchParams.set('ref', 'share')
   u.hash = ''

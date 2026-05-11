@@ -4,7 +4,10 @@
 
 | 파일 | URL | 용도 |
 |---|---|---|
-| `a2jersey-cafe-1024.png` | https://a2jersey-pre.netlify.app/?ref=cafe | 카페 배너 (1024×1024px, EC level H) |
+| `a2jersey-cafe-1024.png` | https://a2jersey-pre.netlify.app/?ref=cafe | 카페 배너 (1024×1024px, EC level H) — 기존 인쇄본 (Netlify 기본 도메인, 영구 유지) |
+
+신규 인쇄 시 canonical URL `https://pre.a2jerseymilk.com/?ref=cafe` 사용 권장 (브랜드 일관성).
+기존 `-pre.netlify.app` QR도 Netlify가 기본 도메인으로 유지하므로 폐기 X.
 
 ## 재생성
 
