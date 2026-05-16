@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: https://pre.a2jerseymilk.co.kr/sitemap.xml
+Sitemap: https://a2jersey-pre.netlify.app/sitemap.xml
