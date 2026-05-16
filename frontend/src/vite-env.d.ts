@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_BRAND_FILM_ID: string
   readonly VITE_LAUNCH_DATE: string
   readonly VITE_SHOP_URL: string
+  readonly VITE_SITE_ORIGIN: string
 }
 
 interface ImportMeta {
