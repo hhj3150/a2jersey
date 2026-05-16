@@ -126,7 +126,7 @@ npm run dev
 |---|---|---|
 | `PORT` | Express 서버 포트 | `4000` |
 | `DATABASE_PATH` | SQLite 파일 경로 | `./data/leads.db` |
-| `CORS_ORIGINS` | 허용 오리진 (콤마 구분) | `http://localhost:5173,https://pre.a2jerseymilk.co.kr,https://a2jersey-pre.netlify.app` |
+| `CORS_ORIGINS` | 허용 오리진 (콤마 구분) | `http://localhost:5173,https://a2jersey-pre.netlify.app` |
 | `ADMIN_USER` | 관리자 아이디 | `admin` |
 | `ADMIN_PASSWORD` | 관리자 비밀번호 | (강한 비밀번호 권장) |
 
@@ -182,9 +182,12 @@ npm run dev
 1. Netlify 대시보드 → Add new site → Import from Git → `hhj3150/a2jersey`
 2. `netlify.toml`이 자동 인식 (base=`frontend`, publish=`dist`)
 3. Site settings → Environment variables에서 `VITE_API_URL` 추가 (Railway URL)
-4. Deploy → 발급된 URL 복사 (예: `https://pre.a2jerseymilk.co.kr` — Netlify 기본 `https://a2jersey-pre.netlify.app`도 동시 유지)
+4. Deploy → Netlify 기본 도메인 `https://a2jersey-pre.netlify.app` 사용 (커스텀 도메인 미연결)
 
-> **도메인 선택 근거**: a2jerseymilk.com은 Wix가 네임서버(ns14.wixdns.net)로 운영 중이라 홈페이지 운영 리스크 회피 차원에서 별도 도메인 a2jerseymilk.co.kr(가비아 DNS authoritative) 사용. 브랜드명 동일.
+> **도메인 메모**: 현재 Netlify 기본 도메인을 그대로 사용한다. 커스텀 도메인은 보류 상태.
+> (참고: 브랜드 홈페이지 `a2jerseymilk.com`은 Wix가 네임서버 `ns14.wixdns.net`로 운영 중이라
+> 이 앱을 거기로 옮기지 않는다. 커스텀 도메인이 필요해지면 그 운영 리스크를 우회할 별도 도메인을
+> 가비아 DNS authoritative로 붙이는 방안을 검토할 수 있으나, 현 시점 결정 아님.)
 
 ### CORS 연동
 
@@ -194,7 +197,6 @@ npm run dev
 
 ## QR 코드
 
-배너에 인쇄할 URL: `https://pre.a2jerseymilk.co.kr/?ref=cafe`
-(기존 인쇄본 `https://a2jersey-pre.netlify.app/?ref=cafe`도 Netlify 기본 도메인으로 자동 호환됨 — 폐기 X)
+배너에 인쇄할 URL: `https://a2jersey-pre.netlify.app/?ref=cafe`
 
 `?ref=` 파라미터로 진입 경로 추적 가능 (cafe / share / youtube / insta / blog).
