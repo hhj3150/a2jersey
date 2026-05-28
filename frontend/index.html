@@ -2,6 +2,20 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      회원모집앱 종료: 홈(/) 진입자는 브랜드 공식 홈페이지로 즉시 리다이렉트 (2026-05-28).
+      QR(?ref=cafe) 포함 모든 쿼리 파라미터는 떨어뜨려서 깔끔하게 보냄.
+      /admin · /privacy · /terms 직접 진입은 영향 없음 (홈만 대상).
+      React 번들 로드 전 실행되도록 <head> 최상단 배치.
+    -->
+    <script>
+      (function () {
+        var p = window.location.pathname.replace(/\/$/, '');
+        if (p === '' || p === '/index.html') {
+          window.location.replace('https://www.a2jerseymilk.com/');
+        }
+      })();
+    </script>
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
